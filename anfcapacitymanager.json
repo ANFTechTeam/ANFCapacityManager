@@ -1,0 +1,2068 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Logic App Name": {
+            "defaultValue": "ANFAutoAlerts",
+            "type": "String"
+        },
+         "Location": {
+            "defaultValue": "eastus2",
+            "type": "String"
+        },
+        "Target Resource Group for Alerts": {
+            "defaultValue": "AlertsWillBeCreatedHere.rg",
+            "type": "String"
+        },
+        "Target Resource Group to Monitor (blank to monitor entire subscription)": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "Capacity Pool % Full Threshold": {
+            "defaultValue": "90",
+            "type": "String"
+        },
+        "Volume % Full Threshold": {
+            "defaultValue": "80",
+            "type": "String"
+        },
+        "Existing Action Group Resource Group": {
+            "defaultValue": "MyExistingAlertGroup.rg",
+            "type": "String"
+        },
+        "Existing Action Group Name for Capacity Notifications": {
+            "defaultValue": "MyExistingAlertGroup",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [{
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "name": "[parameters('Logic App Name')]",
+        "location": "[parameters('Location')]",
+        "identity": {
+            "principalId": "",
+            "tenantId": "",
+            "type": "SystemAssigned"
+        },
+        "properties": {
+            "state": "Enabled",
+            "definition": {
+                "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {},
+                "triggers": {
+                    "manual": {
+                        "type": "Request",
+                        "kind": "Http",
+                        "inputs": {
+                            "schema": {
+                                "properties": {
+                                    "data": {
+                                        "properties": {
+                                            "alertContext": {
+                                                "properties": {
+                                                    "authorization": {
+                                                        "properties": {
+                                                            "action": {
+                                                                "type": "string"
+                                                            },
+                                                            "scope": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "caller": {
+                                                        "type": "string"
+                                                    },
+                                                    "channels": {
+                                                        "type": "string"
+                                                    },
+                                                    "claims": {
+                                                        "type": "string"
+                                                    },
+                                                    "correlationId": {
+                                                        "type": "string"
+                                                    },
+                                                    "eventDataId": {
+                                                        "type": "string"
+                                                    },
+                                                    "eventSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "eventTimestamp": {
+                                                        "type": "string"
+                                                    },
+                                                    "level": {
+                                                        "type": "string"
+                                                    },
+                                                    "operationId": {
+                                                        "type": "string"
+                                                    },
+                                                    "operationName": {
+                                                        "type": "string"
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "subStatus": {
+                                                        "type": "string"
+                                                    },
+                                                    "submissionTimestamp": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "essentials": {
+                                                "properties": {
+                                                    "alertContextVersion": {
+                                                        "type": "string"
+                                                    },
+                                                    "alertId": {
+                                                        "type": "string"
+                                                    },
+                                                    "alertRule": {
+                                                        "type": "string"
+                                                    },
+                                                    "alertTargetIDs": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "essentialsVersion": {
+                                                        "type": "string"
+                                                    },
+                                                    "firedDateTime": {
+                                                        "type": "string"
+                                                    },
+                                                    "monitorCondition": {
+                                                        "type": "string"
+                                                    },
+                                                    "monitoringService": {
+                                                        "type": "string"
+                                                    },
+                                                    "originAlertId": {
+                                                        "type": "string"
+                                                    },
+                                                    "severity": {
+                                                        "type": "string"
+                                                    },
+                                                    "signalType": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "schemaId": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "actions": {
+                    "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": {
+                        "runAfter": {
+                            "Change_Volume_String_to_Float_and_Divide_by_100": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "CapacityAlertPercent",
+                                    "type": "float",
+                                    "value": "@div(float(variables('CapacityAlertInput')),100)"
+                                }
+                            ]
+                        }
+                    },
+                    "Change_Volume_String_to_Float_and_Divide_by_100": {
+                        "runAfter": {
+                            "Set_Volume_Alert_Percentage_(consumed)": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "VolumeAlertPercent",
+                                    "type": "float",
+                                    "value": "@div(float(variables('VolumeAlertInput')),100)"
+                                }
+                            ]
+                        }
+                    },
+                    "Check_if_Scope_is_Sub_or_Resource_Group": {
+                        "actions": {
+                            "Set_resourcesuffix_to_monitorrg": {
+                                "runAfter": {},
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "resourcesuffix",
+                                    "value": "_@{variables('monitor_rg')}"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Should_we_Process_Existing_Resources": [
+                                "Succeeded"
+                            ]
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "greater": [
+                                        "@length(variables('monitor_rg'))",
+                                        0
+                                    ]
+                                }
+                            ]
+                        },
+                        "type": "If"
+                    },
+                    "Get_Workflow_Properties": {
+                        "runAfter": {
+                            "Set_Existing_Action_Group_for_Alerts": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "workflowproperties",
+                                    "type": "object",
+                                    "value": "@workflow()"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_Logic_App_Resource_Group": {
+                        "runAfter": {
+                            "Initialize_Resource_Suffix": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "logicapprg",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_Resource_Suffix": {
+                        "runAfter": {
+                            "Initialize_Variable_to_Store_Scope_of_this_Run": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "resourcesuffix",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_Variable_to_Store_Scope_of_this_Run": {
+                        "runAfter": {
+                            "Set_Subscription_ID": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "scope",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "Parse_Workflow_Properties": {
+                        "runAfter": {
+                            "Get_Workflow_Properties": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@variables('workflowproperties')",
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "run": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "Set_Capacity_Pool_Alert_Percentage_(consumed)": {
+                        "runAfter": {},
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "CapacityAlertInput",
+                                    "type": "string",
+                                    "value": "[parameters('Capacity Pool % Full Threshold')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Existing_Action_Group_Resource_Group": {
+                        "runAfter": {
+                            "Set_Target_Resource_Group_for_Alerts": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "actiongroup_rg",
+                                    "type": "string",
+                                    "value": "[parameters('Existing Action Group Resource Group')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Existing_Action_Group_for_Alerts": {
+                        "runAfter": {
+                            "Set_Existing_Action_Group_Resource_Group": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "action_group",
+                                    "type": "string",
+                                    "value": "[parameters('Existing Action Group Name for Capacity Notifications')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Subscription_ID": {
+                        "runAfter": {
+                            "Parse_Workflow_Properties": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "subid",
+                                    "type": "string",
+                                    "value": "@{split(body('Parse_Workflow_Properties')?['id'],'/')[2]}"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Target_Resource_Group_for_Alerts": {
+                        "runAfter": {
+                            "Set_Target_Resource_Group_to_Monitor": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "target_rg",
+                                    "type": "string",
+                                    "value": "[parameters('Target Resource Group for Alerts')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Target_Resource_Group_to_Monitor": {
+                        "runAfter": {
+                            "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "monitor_rg",
+                                    "type": "string",
+                                    "value": "[parameters('Target Resource Group to Monitor (blank to monitor entire subscription)')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Set_Volume_Alert_Percentage_(consumed)": {
+                        "runAfter": {
+                            "Set_Capacity_Pool_Alert_Percentage_(consumed)": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "VolumeAlertInput",
+                                    "type": "string",
+                                    "value": "[parameters('Volume % Full Threshold')]"
+                                }
+                            ]
+                        }
+                    },
+                    "Should_we_Process_Existing_Resources": {
+                        "runAfter": {
+                            "Initialize_Logic_App_Resource_Group": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "existingresources",
+                                    "type": "boolean",
+                                    "value": "@true"
+                                }
+                            ]
+                        }
+                    },
+                    "Test_if_Triggered_or_Manual_Run": {
+                        "actions": {
+                            "NetApp_Account_or_Capacity_Pool_or_Volume": {
+                                "runAfter": {
+                                    "Set_variable": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "cases": {
+                                    "Capacity_Pool": {
+                                        "case": "pool",
+                                        "actions": {
+                                            "Is_this_a_Capacity_Pool_Write": {
+                                                "actions": {
+                                                    "Create_or_Modify_Capacity_Pool_Alert": {
+                                                        "runAfter": {
+                                                            "Parse_Capacity_Pool_JSON": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Http",
+                                                        "inputs": {
+                                                            "authentication": {
+                                                                "type": "ManagedServiceIdentity"
+                                                            },
+                                                            "body": {
+                                                                "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANFAA_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
+                                                                "location": "global",
+                                                                "name": "ANFAA_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
+                                                                "properties": {
+                                                                    "actions": [
+                                                                        {
+                                                                            "actionGroupId": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                            "webHookProperties": {}
+                                                                        }
+                                                                    ],
+                                                                    "autoMitigate": true,
+                                                                    "criteria": {
+                                                                        "allOf": [
+                                                                            {
+                                                                                "criterionType": "StaticThresholdCriterion",
+                                                                                "dimensions": [],
+                                                                                "metricName": "VolumePoolTotalLogicalSize",
+                                                                                "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools",
+                                                                                "monitorTemplateType": 8,
+                                                                                "name": "Metric1",
+                                                                                "operator": "GreaterThan",
+                                                                                "threshold": "@mul(body('Parse_Capacity_Pool_JSON')?['properties']?['size'],variables('CapacityAlertPercent'))",
+                                                                                "timeAggregation": "Average"
+                                                                            }
+                                                                        ],
+                                                                        "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                                    },
+                                                                    "description": "",
+                                                                    "enabled": true,
+                                                                    "evaluationFrequency": "PT1M",
+                                                                    "scopes": [
+                                                                        "@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}"
+                                                                    ],
+                                                                    "severity": 3,
+                                                                    "targetResourceRegion": "@{body('Parse_Capacity_Pool_JSON')?['location']}",
+                                                                    "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools",
+                                                                    "templateType": 8,
+                                                                    "windowSize": "PT5M"
+                                                                },
+                                                                "tags": {},
+                                                                "type": "Microsoft.Insights/metricAlerts"
+                                                            },
+                                                            "headers": {
+                                                                "Content-Type": "application/json"
+                                                            },
+                                                            "method": "PUT",
+                                                            "uri": "https://management.azure.com/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANFAA_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}?api-version=2018-03-01"
+                                                        }
+                                                    },
+                                                    "Created_Capacity_Pool_Alert": {
+                                                        "runAfter": {
+                                                            "Create_or_Modify_Capacity_Pool_Alert": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Terminate",
+                                                        "inputs": {
+                                                            "runStatus": "Succeeded"
+                                                        }
+                                                    },
+                                                    "Get_Pool_Details": {
+                                                        "runAfter": {},
+                                                        "type": "Http",
+                                                        "inputs": {
+                                                            "authentication": {
+                                                                "type": "ManagedServiceIdentity"
+                                                            },
+                                                            "method": "GET",
+                                                            "uri": " https://management.azure.com@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}?api-version=2017-08-15"
+                                                        }
+                                                    },
+                                                    "Parse_Capacity_Pool_JSON": {
+                                                        "runAfter": {
+                                                            "Get_Pool_Details": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "ParseJson",
+                                                        "inputs": {
+                                                            "content": "@body('Get_Pool_Details')",
+                                                            "schema": {
+                                                                "properties": {
+                                                                    "etag": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "location": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "poolId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "provisioningState": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "serviceLevel": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "size": {
+                                                                                "type": "integer"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "runAfter": {},
+                                                "else": {
+                                                    "actions": {
+                                                        "Is_this_a_Capacity_Pool_Delete": {
+                                                            "actions": {
+                                                                "Delete_Capacity_Pool_Alert": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
+                                                                    "inputs": {
+                                                                        "authentication": {
+                                                                            "type": "ManagedServiceIdentity"
+                                                                        },
+                                                                        "method": "DELETE",
+                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANFAA_Pool_@{last(split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/'))}?api-version=2018-03-01"
+                                                                    }
+                                                                },
+                                                                "Deleted_Capacity_Pool_Alert": {
+                                                                    "runAfter": {
+                                                                        "Delete_Capacity_Pool_Alert": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Terminate",
+                                                                    "inputs": {
+                                                                        "runStatus": "Succeeded"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Capacity_Pool_Expected_Write_or_Delete": {
+                                                                        "runAfter": {},
+                                                                        "type": "Terminate",
+                                                                        "inputs": {
+                                                                            "runError": {
+                                                                                "code": "002",
+                                                                                "message": "Unexpected action type received. Expected 'write' or 'delete'."
+                                                                            },
+                                                                            "runStatus": "Failed"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "contains": [
+                                                                            "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                                            "delete"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "contains": [
+                                                                "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                                "write"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            }
+                                        }
+                                    },
+                                    "NetApp_Account": {
+                                        "case": "account",
+                                        "actions": {
+                                            "Can_do_something_here_in_the_future": {
+                                                "runAfter": {
+                                                    "Parse_NetApp_Account_Details": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Terminate",
+                                                "inputs": {
+                                                    "runStatus": "Succeeded"
+                                                }
+                                            },
+                                            "Get_NetApp_Account_Details": {
+                                                "runAfter": {},
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "method": "GET",
+                                                    "uri": " https://management.azure.com@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}?api-version=2017-08-15"
+                                                }
+                                            },
+                                            "Parse_NetApp_Account_Details": {
+                                                "runAfter": {
+                                                    "Get_NetApp_Account_Details": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "ParseJson",
+                                                "inputs": {
+                                                    "content": "@body('Get_NetApp_Account_Details')",
+                                                    "schema": {
+                                                        "properties": {
+                                                            "etag": {
+                                                                "type": "string"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "location": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "provisioningState": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "Volume": {
+                                        "case": "volume",
+                                        "actions": {
+                                            "Is_this_a_Volume_Write": {
+                                                "actions": {
+                                                    "Create_or_Modify_Volume_Alert": {
+                                                        "runAfter": {
+                                                            "Parse_Volume_JSON": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Http",
+                                                        "inputs": {
+                                                            "authentication": {
+                                                                "type": "ManagedServiceIdentity"
+                                                            },
+                                                            "body": {
+                                                                "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANFAA_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
+                                                                "location": "global",
+                                                                "name": "ANFAA_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
+                                                                "properties": {
+                                                                    "actions": [
+                                                                        {
+                                                                            "actionGroupId": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                            "webHookProperties": {}
+                                                                        }
+                                                                    ],
+                                                                    "autoMitigate": true,
+                                                                    "criteria": {
+                                                                        "allOf": [
+                                                                            {
+                                                                                "criterionType": "StaticThresholdCriterion",
+                                                                                "dimensions": [],
+                                                                                "metricName": "VolumeLogicalSize",
+                                                                                "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                "monitorTemplateType": 8,
+                                                                                "name": "Metric1",
+                                                                                "operator": "GreaterThan",
+                                                                                "threshold": "@mul(body('Parse_Volume_JSON')?['properties']?['usageThreshold'],variables('VolumeAlertPercent'))",
+                                                                                "timeAggregation": "Average"
+                                                                            }
+                                                                        ],
+                                                                        "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                                    },
+                                                                    "description": "",
+                                                                    "enabled": true,
+                                                                    "evaluationFrequency": "PT1M",
+                                                                    "scopes": [
+                                                                        "@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}"
+                                                                    ],
+                                                                    "severity": 3,
+                                                                    "targetResourceRegion": "@{body('Parse_Volume_JSON')?['location']}",
+                                                                    "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                    "templateType": 8,
+                                                                    "windowSize": "PT5M"
+                                                                },
+                                                                "tags": {},
+                                                                "type": "Microsoft.Insights/metricAlerts"
+                                                            },
+                                                            "headers": {
+                                                                "Content-Type": "application/json"
+                                                            },
+                                                            "method": "PUT",
+                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANFAA_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}?api-version=2018-03-01"
+                                                        }
+                                                    },
+                                                    "Created_Volume_Alert": {
+                                                        "runAfter": {
+                                                            "Create_or_Modify_Volume_Alert": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Terminate",
+                                                        "inputs": {
+                                                            "runStatus": "Succeeded"
+                                                        }
+                                                    },
+                                                    "Get_Volume_Details": {
+                                                        "runAfter": {},
+                                                        "type": "Http",
+                                                        "inputs": {
+                                                            "authentication": {
+                                                                "type": "ManagedServiceIdentity"
+                                                            },
+                                                            "method": "GET",
+                                                            "uri": " https://management.azure.com@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}?api-version=2017-08-15"
+                                                        }
+                                                    },
+                                                    "Parse_Volume_JSON": {
+                                                        "runAfter": {
+                                                            "Get_Volume_Details": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "ParseJson",
+                                                        "inputs": {
+                                                            "content": "@body('Get_Volume_Details')",
+                                                            "schema": {
+                                                                "properties": {
+                                                                    "etag": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "location": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "baremetalTenantId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "creationToken": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "exportPolicy": {
+                                                                                "properties": {
+                                                                                    "rules": {
+                                                                                        "items": {
+                                                                                            "properties": {
+                                                                                                "allowedClients": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "cifs": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "nfsv3": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "nfsv4": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "nfsv41": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "ruleIndex": {
+                                                                                                    "type": "integer"
+                                                                                                },
+                                                                                                "unixReadOnly": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "unixReadWrite": {
+                                                                                                    "type": "boolean"
+                                                                                                }
+                                                                                            },
+                                                                                            "required": [],
+                                                                                            "type": "object"
+                                                                                        },
+                                                                                        "type": "array"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "fileSystemId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "mountTargets": {
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "endIp": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "fileSystemId": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "gateway": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "ipAddress": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "mountTargetId": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "netmask": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "provisioningState": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "startIp": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "subnet": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [],
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "ownerId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "protocolTypes": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "provisioningState": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "serviceLevel": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "subnetId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "usageThreshold": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "usedBytes": {
+                                                                                "type": "integer"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "tags": {
+                                                                        "properties": {},
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "runAfter": {},
+                                                "else": {
+                                                    "actions": {
+                                                        "Is_this_a_Volume_Delete": {
+                                                            "actions": {
+                                                                "Delete_Volume_Alert": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
+                                                                    "inputs": {
+                                                                        "authentication": {
+                                                                            "type": "ManagedServiceIdentity"
+                                                                        },
+                                                                        "method": "DELETE",
+                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANFAA_Volume_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{last(split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/'))}?api-version=2018-03-01"
+                                                                    }
+                                                                },
+                                                                "Deleted_Volume_Alert": {
+                                                                    "runAfter": {
+                                                                        "Delete_Volume_Alert": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Terminate",
+                                                                    "inputs": {
+                                                                        "runStatus": "Succeeded"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Terminate": {
+                                                                        "runAfter": {},
+                                                                        "type": "Terminate",
+                                                                        "inputs": {
+                                                                            "runError": {
+                                                                                "code": "002",
+                                                                                "message": "Unexpected action type received. Expected 'write' or 'delete'."
+                                                                            },
+                                                                            "runStatus": "Failed"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "contains": [
+                                                                            "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                                            "delete"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "contains": [
+                                                                "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                                "write"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            }
+                                        }
+                                    }
+                                },
+                                "default": {
+                                    "actions": {}
+                                },
+                                "expression": "@variables('scope')",
+                                "type": "Switch"
+                            },
+                            "Set_variable": {
+                                "runAfter": {
+                                    "Test_Volume": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "subid",
+                                    "value": "@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}"
+                                }
+                            },
+                            "Test_Volume": {
+                                "actions": {
+                                    "Set_Scope_to_Volume": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "scope",
+                                            "value": "volume"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "else": {
+                                    "actions": {
+                                        "Test_Pool": {
+                                            "actions": {
+                                                "Set_Scope_to_Pool": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "scope",
+                                                        "value": "pool"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "else": {
+                                                "actions": {
+                                                    "Test_NetApp_Account": {
+                                                        "actions": {
+                                                            "Set_Scope_to_NetApp_Account": {
+                                                                "runAfter": {},
+                                                                "type": "SetVariable",
+                                                                "inputs": {
+                                                                    "name": "scope",
+                                                                    "value": "account"
+                                                                }
+                                                            }
+                                                        },
+                                                        "runAfter": {},
+                                                        "else": {
+                                                            "actions": {
+                                                                "Terminate_4": {
+                                                                    "runAfter": {},
+                                                                    "type": "Terminate",
+                                                                    "inputs": {
+                                                                        "runError": {
+                                                                            "code": "001",
+                                                                            "message": "Unexpected alert type. This workflow should be triggered only when an Azure NetApp Files resource is created, modified, or deleted."
+                                                                        },
+                                                                        "runStatus": "Failed"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "expression": {
+                                                            "and": [
+                                                                {
+                                                                    "contains": [
+                                                                        "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                                        "netAppAccounts"
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "type": "If"
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "contains": [
+                                                            "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                            "capacityPools"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    }
+                                },
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                                "volumes"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "Check_if_Scope_is_Sub_or_Resource_Group": [
+                                "Succeeded"
+                            ]
+                        },
+                        "else": {
+                            "actions": {
+                                "Get_SubID_Details": {
+                                    "runAfter": {
+                                        "Parse_this_Logic_App_Details": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}?api-version=2020-01-01"
+                                    }
+                                },
+                                "Get_Webhook_URL_of_this_Logic_App": {
+                                    "runAfter": {
+                                        "Set_Logic_App_Resource_Group": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('logicapprg')}/providers/Microsoft.Logic/workflows/@{workflow().name}/triggers/manual/listcallbackurl?api-version=2016-06-01"
+                                    }
+                                },
+                                "Parse_SubID_Details": {
+                                    "runAfter": {
+                                        "Get_SubID_Details": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('Get_SubID_Details')",
+                                        "schema": {
+                                            "properties": {
+                                                "authorizationSource": {
+                                                    "type": "string"
+                                                },
+                                                "displayName": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "managedByTenants": {
+                                                    "type": "array"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "subscriptionId": {
+                                                    "type": "string"
+                                                },
+                                                "subscriptionPolicies": {
+                                                    "properties": {
+                                                        "locationPlacementId": {
+                                                            "type": "string"
+                                                        },
+                                                        "quotaId": {
+                                                            "type": "string"
+                                                        },
+                                                        "spendingLimit": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "tenantId": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "Parse_this_Logic_App_Details": {
+                                    "runAfter": {
+                                        "Get_Webhook_URL_of_this_Logic_App": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('Get_Webhook_URL_of_this_Logic_App')",
+                                        "schema": {
+                                            "properties": {
+                                                "basePath": {
+                                                    "type": "string"
+                                                },
+                                                "method": {
+                                                    "type": "string"
+                                                },
+                                                "queries": {
+                                                    "properties": {
+                                                        "api-version": {
+                                                            "type": "string"
+                                                        },
+                                                        "sig": {
+                                                            "type": "string"
+                                                        },
+                                                        "sp": {
+                                                            "type": "string"
+                                                        },
+                                                        "sv": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "Set_Logic_App_Resource_Group": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "logicapprg",
+                                        "value": "@{split(body('Parse_Workflow_Properties')?['id'],'/')[4]}"
+                                    }
+                                },
+                                "Test_if_ExistingResources_is_set_to_True": {
+                                    "actions": {},
+                                    "runAfter": {
+                                        "Test_if_Scope_if_Sub_or_RG": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@variables('existingresources')",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Test_if_Scope_if_Sub_or_RG": {
+                                    "actions": {
+                                        "Create_ANFAutoAlerts_Alert_Group": {
+                                            "runAfter": {
+                                                "Set_Suffix_to_Target_Resource_Group": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                    "identity": null,
+                                                    "kind": null,
+                                                    "location": "Global",
+                                                    "name": "ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                    "properties": {
+                                                        "armRoleReceivers": [],
+                                                        "automationRunbookReceivers": [],
+                                                        "azureAppPushReceivers": [],
+                                                        "azureFunctionReceivers": [],
+                                                        "emailReceivers": [],
+                                                        "enabled": true,
+                                                        "groupShortName": "ANFAA_LAT",
+                                                        "itsmReceivers": [],
+                                                        "logicAppReceivers": [],
+                                                        "smsReceivers": [],
+                                                        "voiceReceivers": [],
+                                                        "webhookReceivers": [
+                                                            {
+                                                                "identifierUri": null,
+                                                                "name": "ANFAutoAlerts",
+                                                                "objectId": null,
+                                                                "serviceUri": "@{body('Parse_this_Logic_App_Details')?['value']}",
+                                                                "tenantId": null,
+                                                                "useAadAuth": false,
+                                                                "useCommonAlertSchema": true
+                                                            }
+                                                        ]
+                                                    },
+                                                    "tags": {},
+                                                    "type": "Microsoft.Insights/ActionGroups"
+                                                },
+                                                "headers": {
+                                                    "Content-Type": "application/json"
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}?api-version=2018-03-01"
+                                            }
+                                        },
+                                        "Create_Trigger_Alert_for_Capacity_Pool_Create_or_Modify": {
+                                            "runAfter": {
+                                                "Create_Trigger_Alert_for_Volume_Deleted": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "id": "",
+                                                    "identity": null,
+                                                    "kind": null,
+                                                    "location": "Global",
+                                                    "name": "ANFAA_PoolModified_@{variables('resourcesuffix')}",
+                                                    "properties": {
+                                                        "actions": {
+                                                            "actionGroups": [
+                                                                {
+                                                                    "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                                    "webhookProperties": {}
+                                                                }
+                                                            ]
+                                                        },
+                                                        "condition": {
+                                                            "allOf": [
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Administrative",
+                                                                    "field": "category",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "@{variables('monitor_rg')}",
+                                                                    "field": "resourceGroup",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "microsoft.netapp/netappaccounts/capacitypools",
+                                                                    "field": "resourceType",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/write",
+                                                                    "field": "operationName",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "succeeded",
+                                                                    "field": "status",
+                                                                    "odata.type": null
+                                                                }
+                                                            ],
+                                                            "odata.type": null
+                                                        },
+                                                        "description": "",
+                                                        "enabled": true,
+                                                        "scopes": [
+                                                            "/subscriptions/@{variables('subid')}"
+                                                        ]
+                                                    },
+                                                    "tags": {},
+                                                    "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_PoolModified_@{variables('resourcesuffix')}?api-version=2017-04-01"
+                                            }
+                                        },
+                                        "Create_Trigger_Alert_for_Capacity_Pool_Deleted": {
+                                            "runAfter": {
+                                                "Create_Trigger_Alert_for_Capacity_Pool_Create_or_Modify": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "id": "",
+                                                    "identity": null,
+                                                    "kind": null,
+                                                    "location": "Global",
+                                                    "name": "ANFAA_PoolDeleted_@{variables('resourcesuffix')}",
+                                                    "properties": {
+                                                        "actions": {
+                                                            "actionGroups": [
+                                                                {
+                                                                    "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                                    "webhookProperties": {}
+                                                                }
+                                                            ]
+                                                        },
+                                                        "condition": {
+                                                            "allOf": [
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Administrative",
+                                                                    "field": "category",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "@{variables('monitor_rg')}",
+                                                                    "field": "resourceGroup",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "microsoft.netapp/netappaccounts/capacitypools",
+                                                                    "field": "resourceType",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/delete",
+                                                                    "field": "operationName",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "succeeded",
+                                                                    "field": "status",
+                                                                    "odata.type": null
+                                                                }
+                                                            ],
+                                                            "odata.type": null
+                                                        },
+                                                        "description": "",
+                                                        "enabled": true,
+                                                        "scopes": [
+                                                            "/subscriptions/@{variables('subid')}"
+                                                        ]
+                                                    },
+                                                    "tags": {},
+                                                    "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_PoolDeleted_@{variables('resourcesuffix')}?api-version=2017-04-01"
+                                            }
+                                        },
+                                        "Create_Trigger_Alert_for_Volume_Create_or_Modify": {
+                                            "runAfter": {
+                                                "Create_ANFAutoAlerts_Alert_Group": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeModified_@{variables('resourcesuffix')}",
+                                                    "identity": null,
+                                                    "kind": null,
+                                                    "location": "Global",
+                                                    "name": "ANFAA_VolumeModified_@{variables('resourcesuffix')}",
+                                                    "properties": {
+                                                        "actions": {
+                                                            "actionGroups": [
+                                                                {
+                                                                    "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                                    "webhookProperties": {}
+                                                                }
+                                                            ]
+                                                        },
+                                                        "condition": {
+                                                            "allOf": [
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Administrative",
+                                                                    "field": "category",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "@{variables('monitor_rg')}",
+                                                                    "field": "resourceGroup",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "microsoft.netapp/netappaccounts/capacitypools/volumes",
+                                                                    "field": "resourceType",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes/write",
+                                                                    "field": "operationName",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "succeeded",
+                                                                    "field": "status",
+                                                                    "odata.type": null
+                                                                }
+                                                            ],
+                                                            "odata.type": null
+                                                        },
+                                                        "description": "",
+                                                        "enabled": true,
+                                                        "scopes": [
+                                                            "/subscriptions/@{variables('subid')}"
+                                                        ]
+                                                    },
+                                                    "tags": {},
+                                                    "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeModified_@{variables('resourcesuffix')}?api-version=2017-04-01"
+                                            }
+                                        },
+                                        "Create_Trigger_Alert_for_Volume_Deleted": {
+                                            "runAfter": {
+                                                "Create_Trigger_Alert_for_Volume_Create_or_Modify": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeDeleted_@{variables('resourcesuffix')}",
+                                                    "identity": null,
+                                                    "kind": null,
+                                                    "location": "Global",
+                                                    "name": "ANFAA_VolumeDeleted_@{variables('resourcesuffix')}",
+                                                    "properties": {
+                                                        "actions": {
+                                                            "actionGroups": [
+                                                                {
+                                                                    "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger_@{variables('resourcesuffix')}",
+                                                                    "webhookProperties": {}
+                                                                }
+                                                            ]
+                                                        },
+                                                        "condition": {
+                                                            "allOf": [
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Administrative",
+                                                                    "field": "category",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "@{variables('monitor_rg')}",
+                                                                    "field": "resourceGroup",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "microsoft.netapp/netappaccounts/capacitypools/volumes",
+                                                                    "field": "resourceType",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes/delete",
+                                                                    "field": "operationName",
+                                                                    "odata.type": null
+                                                                },
+                                                                {
+                                                                    "containsAny": null,
+                                                                    "equals": "succeeded",
+                                                                    "field": "status",
+                                                                    "odata.type": null
+                                                                }
+                                                            ],
+                                                            "odata.type": null
+                                                        },
+                                                        "description": "",
+                                                        "enabled": true,
+                                                        "scopes": [
+                                                            "/subscriptions/@{variables('subid')}"
+                                                        ]
+                                                    },
+                                                    "tags": {},
+                                                    "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeDeleted_@{variables('resourcesuffix')}?api-version=2017-04-01"
+                                            }
+                                        },
+                                        "Set_Suffix_to_Target_Resource_Group": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "resourcesuffix",
+                                                "value": "@variables('target_rg')"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Parse_SubID_Details": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Create_ANFAutoAlerts_Alert_Group_(Sub)": {
+                                                "runAfter": {},
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger",
+                                                        "identity": null,
+                                                        "kind": null,
+                                                        "location": "Global",
+                                                        "name": "ANFAA_LogicAppTrigger",
+                                                        "properties": {
+                                                            "armRoleReceivers": [],
+                                                            "automationRunbookReceivers": [],
+                                                            "azureAppPushReceivers": [],
+                                                            "azureFunctionReceivers": [],
+                                                            "emailReceivers": [],
+                                                            "enabled": true,
+                                                            "groupShortName": "ANFAA_LAT",
+                                                            "itsmReceivers": [],
+                                                            "logicAppReceivers": [],
+                                                            "smsReceivers": [],
+                                                            "voiceReceivers": [],
+                                                            "webhookReceivers": [
+                                                                {
+                                                                    "identifierUri": null,
+                                                                    "name": "ANFAutoAlerts",
+                                                                    "objectId": null,
+                                                                    "serviceUri": "@{body('Parse_this_Logic_App_Details')?['value']}",
+                                                                    "tenantId": null,
+                                                                    "useAadAuth": false,
+                                                                    "useCommonAlertSchema": true
+                                                                }
+                                                            ]
+                                                        },
+                                                        "tags": {},
+                                                        "type": "Microsoft.Insights/ActionGroups"
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger?api-version=2018-03-01"
+                                                }
+                                            },
+                                            "Create_Trigger_Alert_for_Capacity_Pool_Create_or_Modify_(Sub)": {
+                                                "runAfter": {
+                                                    "Create_Trigger_Alert_for_Volume_Deleted_(Sub)": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "id": "",
+                                                        "identity": null,
+                                                        "kind": null,
+                                                        "location": "Global",
+                                                        "name": "ANFAA_PoolModified",
+                                                        "properties": {
+                                                            "actions": {
+                                                                "actionGroups": [
+                                                                    {
+                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger",
+                                                                        "webhookProperties": {}
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "condition": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Administrative",
+                                                                        "field": "category",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "microsoft.netapp/netappaccounts/capacitypools",
+                                                                        "field": "resourceType",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/write",
+                                                                        "field": "operationName",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "succeeded",
+                                                                        "field": "status",
+                                                                        "odata.type": null
+                                                                    }
+                                                                ],
+                                                                "odata.type": null
+                                                            },
+                                                            "description": "",
+                                                            "enabled": true,
+                                                            "scopes": [
+                                                                "/subscriptions/@{variables('subid')}"
+                                                            ]
+                                                        },
+                                                        "tags": {},
+                                                        "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_PoolModified?api-version=2017-04-01"
+                                                }
+                                            },
+                                            "Create_Trigger_Alert_for_Capacity_Pool_Deleted_(Sub)": {
+                                                "runAfter": {
+                                                    "Create_Trigger_Alert_for_Capacity_Pool_Create_or_Modify_(Sub)": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "id": "",
+                                                        "identity": null,
+                                                        "kind": null,
+                                                        "location": "Global",
+                                                        "name": "ANFAA_PoolDeleted",
+                                                        "properties": {
+                                                            "actions": {
+                                                                "actionGroups": [
+                                                                    {
+                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger",
+                                                                        "webhookProperties": {}
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "condition": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Administrative",
+                                                                        "field": "category",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "microsoft.netapp/netappaccounts/capacitypools",
+                                                                        "field": "resourceType",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/delete",
+                                                                        "field": "operationName",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "succeeded",
+                                                                        "field": "status",
+                                                                        "odata.type": null
+                                                                    }
+                                                                ],
+                                                                "odata.type": null
+                                                            },
+                                                            "description": "",
+                                                            "enabled": true,
+                                                            "scopes": [
+                                                                "/subscriptions/@{variables('subid')}"
+                                                            ]
+                                                        },
+                                                        "tags": {},
+                                                        "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_PoolDeleted?api-version=2017-04-01"
+                                                }
+                                            },
+                                            "Create_Trigger_Alert_for_Volume_Create_or_Modify_(Sub)": {
+                                                "runAfter": {
+                                                    "Create_ANFAutoAlerts_Alert_Group_(Sub)": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeModified",
+                                                        "identity": null,
+                                                        "kind": null,
+                                                        "location": "Global",
+                                                        "name": "ANFAA_VolumeModified",
+                                                        "properties": {
+                                                            "actions": {
+                                                                "actionGroups": [
+                                                                    {
+                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger",
+                                                                        "webhookProperties": {}
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "condition": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Administrative",
+                                                                        "field": "category",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "microsoft.netapp/netappaccounts/capacitypools/volumes",
+                                                                        "field": "resourceType",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes/write",
+                                                                        "field": "operationName",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "succeeded",
+                                                                        "field": "status",
+                                                                        "odata.type": null
+                                                                    }
+                                                                ],
+                                                                "odata.type": null
+                                                            },
+                                                            "description": "",
+                                                            "enabled": true,
+                                                            "scopes": [
+                                                                "/subscriptions/@{variables('subid')}"
+                                                            ]
+                                                        },
+                                                        "tags": {},
+                                                        "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeModified?api-version=2017-04-01"
+                                                }
+                                            },
+                                            "Create_Trigger_Alert_for_Volume_Deleted_(Sub)": {
+                                                "runAfter": {
+                                                    "Create_Trigger_Alert_for_Volume_Create_or_Modify_(Sub)": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeDeleted",
+                                                        "identity": null,
+                                                        "kind": null,
+                                                        "location": "Global",
+                                                        "name": "ANFAA_VolumeDeleted",
+                                                        "properties": {
+                                                            "actions": {
+                                                                "actionGroups": [
+                                                                    {
+                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANFAA_LogicAppTrigger",
+                                                                        "webhookProperties": {}
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "condition": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Administrative",
+                                                                        "field": "category",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "microsoft.netapp/netappaccounts/capacitypools/volumes",
+                                                                        "field": "resourceType",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes/delete",
+                                                                        "field": "operationName",
+                                                                        "odata.type": null
+                                                                    },
+                                                                    {
+                                                                        "containsAny": null,
+                                                                        "equals": "succeeded",
+                                                                        "field": "status",
+                                                                        "odata.type": null
+                                                                    }
+                                                                ],
+                                                                "odata.type": null
+                                                            },
+                                                            "description": "",
+                                                            "enabled": true,
+                                                            "scopes": [
+                                                                "/subscriptions/@{variables('subid')}"
+                                                            ]
+                                                        },
+                                                        "tags": {},
+                                                        "type": "Microsoft.Insights/ActivityLogAlerts"
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/activityLogAlerts/ANFAA_VolumeDeleted?api-version=2017-04-01"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(variables('monitor_rg'))",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            }
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "not": {
+                                        "equals": [
+                                            "@triggerBody()?['data']?['alertContext']?['authorization']?['action']",
+                                            "@null"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "type": "If"
+                    }
+                },
+                "outputs": {}
+            },
+            "parameters": {}
+        }
+    }
+]
+}
