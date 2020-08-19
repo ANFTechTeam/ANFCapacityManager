@@ -4,38 +4,66 @@
     "parameters": {
         "Logic App Name": {
             "defaultValue": "ANFCapacityManager",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "Choose a name for the Logic App. If you are only monitoring a single resource group, it is recommended to append the name with your resource group name (e.g., ANFCapacityManager_myrg.rg)."
+            }
+        },
+         "Location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "The location/region where the Logic App will be deployed. Leave as is to deploy to the same region as the containing resource group."
+              }
         },
         "Target Resource Group for Alerts": {
             "defaultValue": "AlertsWillBeCreatedHere.rg",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "The resource group where you would like the Alert Rules to be created. The Logic App will need a 'contributor' role to this resource group."
+              }
         },
         "Target Resource Group to Monitor": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Leave blank to monitor your entire subscription (recommended)."
+                "description": "Leave blank to monitor your entire subscription (recommended). Alternatively, you can specify a single resource group to monitor for new Azure NetApp Files resources."
             }
         },
         "Capacity Pool % Full Threshold": {
             "defaultValue": "90",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "This is the percent consumed threshold that will trigger an alert for all Azure NetApp Files Capacity Pools. A whole number between 1 and 100 is required."
+            }
         },
         "Volume % Full Threshold": {
             "defaultValue": "80",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "This is the percent consumed threshold that will trigger an alert for all Azure NetApp Files Volumes. A whole number between 1 and 100 is required."
+            }
         },
         "Existing Action Group Resource Group": {
             "defaultValue": "MyExistingAlertGroup.rg",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "The resource group that contains your existing Action Group. This Action Group will be triggered when a Capacity Pool or Volume reaches the specified percent full threshold."
+            }
         },
         "Existing Action Group Name for Capacity Notifications": {
             "defaultValue": "MyExistingAlertGroup",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "The name of your existing Action Group. This Action Group will be triggered when a Capacity Pool or Volume reaches the specified percent full threshold."
+            }
         },
         "AutoGrow Percent Increase": {
             "defaultValue": "20",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "A value of 0 will disable the AutoGrow functionality. To enable, a value between 10 and 100 is required."
+            }
         }
     },
     "variables": {},
@@ -43,7 +71,7 @@
         "type": "Microsoft.Logic/workflows",
         "apiVersion": "2017-07-01",
         "name": "[parameters('Logic App Name')]",
-        "location": "[resourceGroup().location]",
+        "location": "[parameters('Location')]",
         "identity": {
             "principalId": "",
             "tenantId": "",
