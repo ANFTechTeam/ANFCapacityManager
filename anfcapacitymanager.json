@@ -62,7 +62,7 @@
             "defaultValue": "20",
             "type": "String",
             "metadata": {
-                "description": "A value of 0 will disable the AutoGrow functionality. To enable, a value between 10 and 100 is required."
+                "description": "This is the percent (of the existing volume size) to automatically grow a volume if it reaches the percent full threshold specified above. A value of 0 (zero) will disable the AutoGrow functionality. To enable, a value between 10 and 100 is required."
             }
         }
     },
@@ -1440,16 +1440,7 @@
                                                                                                             "type": "boolean"
                                                                                                         }
                                                                                                     },
-                                                                                                    "required": [
-                                                                                                        "ruleIndex",
-                                                                                                        "unixReadOnly",
-                                                                                                        "unixReadWrite",
-                                                                                                        "cifs",
-                                                                                                        "nfsv3",
-                                                                                                        "nfsv4",
-                                                                                                        "nfsv41",
-                                                                                                        "allowedClients"
-                                                                                                    ],
+                                                                                                    "required": [],
                                                                                                     "type": "object"
                                                                                                 },
                                                                                                 "type": "array"
@@ -1491,17 +1482,7 @@
                                                                                                     "type": "string"
                                                                                                 }
                                                                                             },
-                                                                                            "required": [
-                                                                                                "provisioningState",
-                                                                                                "mountTargetId",
-                                                                                                "fileSystemId",
-                                                                                                "startIp",
-                                                                                                "endIp",
-                                                                                                "gateway",
-                                                                                                "netmask",
-                                                                                                "subnet",
-                                                                                                "ipAddress"
-                                                                                            ],
+                                                                                            "required": [],
                                                                                             "type": "object"
                                                                                         },
                                                                                         "type": "array"
@@ -1618,16 +1599,7 @@
                                                                                                                             "type": "boolean"
                                                                                                                         }
                                                                                                                     },
-                                                                                                                    "required": [
-                                                                                                                        "ruleIndex",
-                                                                                                                        "unixReadOnly",
-                                                                                                                        "unixReadWrite",
-                                                                                                                        "cifs",
-                                                                                                                        "nfsv3",
-                                                                                                                        "nfsv4",
-                                                                                                                        "nfsv41",
-                                                                                                                        "allowedClients"
-                                                                                                                    ],
+                                                                                                                    "required": [],
                                                                                                                     "type": "object"
                                                                                                                 },
                                                                                                                 "type": "array"
@@ -1669,17 +1641,7 @@
                                                                                                                     "type": "string"
                                                                                                                 }
                                                                                                             },
-                                                                                                            "required": [
-                                                                                                                "provisioningState",
-                                                                                                                "mountTargetId",
-                                                                                                                "fileSystemId",
-                                                                                                                "startIp",
-                                                                                                                "endIp",
-                                                                                                                "gateway",
-                                                                                                                "netmask",
-                                                                                                                "subnet",
-                                                                                                                "ipAddress"
-                                                                                                            ],
+                                                                                                            "required": [],
                                                                                                             "type": "object"
                                                                                                         },
                                                                                                         "type": "array"
@@ -1890,16 +1852,7 @@
                                                                                                                                 "type": "boolean"
                                                                                                                             }
                                                                                                                         },
-                                                                                                                        "required": [
-                                                                                                                            "ruleIndex",
-                                                                                                                            "unixReadOnly",
-                                                                                                                            "unixReadWrite",
-                                                                                                                            "cifs",
-                                                                                                                            "nfsv3",
-                                                                                                                            "nfsv4",
-                                                                                                                            "nfsv41",
-                                                                                                                            "allowedClients"
-                                                                                                                        ],
+                                                                                                                        "required": [],
                                                                                                                         "type": "object"
                                                                                                                     },
                                                                                                                     "type": "array"
@@ -1941,17 +1894,7 @@
                                                                                                                         "type": "string"
                                                                                                                     }
                                                                                                                 },
-                                                                                                                "required": [
-                                                                                                                    "provisioningState",
-                                                                                                                    "mountTargetId",
-                                                                                                                    "fileSystemId",
-                                                                                                                    "startIp",
-                                                                                                                    "endIp",
-                                                                                                                    "gateway",
-                                                                                                                    "netmask",
-                                                                                                                    "subnet",
-                                                                                                                    "ipAddress"
-                                                                                                                ],
+                                                                                                                "required": [],
                                                                                                                 "type": "object"
                                                                                                             },
                                                                                                             "type": "array"
@@ -1984,14 +1927,7 @@
                                                                                                     "type": "string"
                                                                                                 }
                                                                                             },
-                                                                                            "required": [
-                                                                                                "id",
-                                                                                                "name",
-                                                                                                "type",
-                                                                                                "etag",
-                                                                                                "location",
-                                                                                                "properties"
-                                                                                            ],
+                                                                                            "required": [],
                                                                                             "type": "object"
                                                                                         },
                                                                                         "type": "array"
@@ -2251,10 +2187,7 @@
                                                                                                                 "type": "string"
                                                                                                             }
                                                                                                         },
-                                                                                                        "required": [
-                                                                                                            "name",
-                                                                                                            "value"
-                                                                                                        ],
+                                                                                                        "required": [],
                                                                                                         "type": "object"
                                                                                                     },
                                                                                                     "type": "array"
@@ -2279,16 +2212,7 @@
                                                                                                 },
                                                                                                 "webTestName": {}
                                                                                             },
-                                                                                            "required": [
-                                                                                                "metricName",
-                                                                                                "metricNamespace",
-                                                                                                "operator",
-                                                                                                "threshold",
-                                                                                                "timeAggregation",
-                                                                                                "dimensions",
-                                                                                                "metricValue",
-                                                                                                "webTestName"
-                                                                                            ],
+                                                                                            "required": [],
                                                                                             "type": "object"
                                                                                         },
                                                                                         "type": "array"
@@ -4618,14 +4542,7 @@
                                                                                     "type": "string"
                                                                                 }
                                                                             },
-                                                                            "required": [
-                                                                                "id",
-                                                                                "name",
-                                                                                "type",
-                                                                                "location",
-                                                                                "tags",
-                                                                                "properties"
-                                                                            ],
+                                                                            "required": [],
                                                                             "type": "object"
                                                                         },
                                                                         "type": "array"
