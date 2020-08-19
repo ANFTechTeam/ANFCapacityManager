@@ -6,13 +6,6 @@
             "defaultValue": "ANFCapacityManager",
             "type": "String"
         },
-         "Location": {
-            "defaultValue": "[resourceGroup().location]",
-            "type": "String",
-            "metadata": {
-                "description": "The location in which the Logic App should be deployed."
-              }
-        },
         "Target Resource Group for Alerts": {
             "defaultValue": "AlertsWillBeCreatedHere.rg",
             "type": "String"
@@ -50,7 +43,7 @@
         "type": "Microsoft.Logic/workflows",
         "apiVersion": "2017-07-01",
         "name": "[parameters('Logic App Name')]",
-        "location": "[parameters('Location')]",
+        "location": "[resourceGroup().location]",
         "identity": {
             "principalId": "",
             "tenantId": "",
