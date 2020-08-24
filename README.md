@@ -16,6 +16,7 @@
 
 * Optionally, when an Azure NetApp Files Volume reaches the specified percent consumed threshold, the volume quota (size) will be increased by the percent specified between 10-100%.
 * If increasing the volume size exceeds the capacity of the containing capacity pool, the capacity pool size will also be increased to accomodate the new volume size.
+* For an exmaple of how this works, click [here](./ResizeWorkflow.md).
 
 ## Prerequisites and Permissions
 
