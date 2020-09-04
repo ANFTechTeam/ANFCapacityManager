@@ -2820,7 +2820,7 @@
                                                                                         "webHookProperties": {}
                                                                                     },
                                                                                     {
-                                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('target_rg')}/providers/microsoft.insights/actiongroups/ANF_LogicAppTrigger",
+                                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('target_rg')}/providers/microsoft.insights/actiongroups/ANF_LogicAppTrigger@{variables('resourcesuffix')}",
                                                                                         "webHookProperties": {}
                                                                                     }
                                                                                 ],
