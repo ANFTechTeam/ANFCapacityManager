@@ -3280,7 +3280,7 @@
                                                                     "type": "ManagedServiceIdentity"
                                                                 },
                                                                 "method": "GET",
-                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.NetApp/netAppAccounts/@{items('For_each_NetApp_Account')?['name']}/capacityPools?api-version=2017-08-15"
+                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('monitor_rg')}/providers/Microsoft.NetApp/netAppAccounts/@{items('For_each_NetApp_Account')?['name']}/capacityPools?api-version=2017-08-15"
                                                             }
                                                         },
                                                         "Parse_Capacity_Pools": {
