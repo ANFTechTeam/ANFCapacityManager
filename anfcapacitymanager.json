@@ -3480,7 +3480,7 @@
                                             "type": "SetVariable",
                                             "inputs": {
                                                 "name": "resourcesuffix",
-                                                "value": "_@{variables('target_rg')}"
+                                                "value": "_@{variables('monitor_rg')}"
                                             }
                                         }
                                     },
