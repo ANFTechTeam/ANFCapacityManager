@@ -20,7 +20,7 @@
 
 ## Prerequisites and Permissions
 
-* The Logic App will need 'reader' access to your ANF resrouce group (or subscription) and 'contributor' access to the resource group where it will be creating the alerts as well as the resource group it is deployed to.
+* The Logic App will need 'contributor' access to your ANF resrouce group (or subscription) and 'contributor' access to the resource group where it will be creating the alerts as well as the resource group it is deployed to.
 
 * You will need to have an Alert Action group already created prior to installing the Logic App. This Action group will be associated with all capacity based alerts that get created by the Logic App. This action group is triggered when a Capacity Pool or Volume has reached the full threshold. This Alert Action group should probably notify the appropriate people via email or SMS.
 
