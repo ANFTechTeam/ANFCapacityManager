@@ -23,7 +23,7 @@
 
 ## Prerequisites and Permissions
 
-* The Logic App will need 'reader' access to your ANF resrouce group (or subscription) and 'contributor' access to the resource group where it will be creating the alerts as well as the resource group it is deployed to.
+* The Logic App will need 'contributor' access to your ANF resrouce group (or subscription) and 'contributor' access to the resource group where it will be creating the alerts as well as the resource group it is deployed to.
 
 * You will need to have an Alert Action group already created prior to installing the Logic App. This Action group will be associated with all capacity based alerts that get created by the Logic App. This action group is triggered when a Capacity Pool or Volume has reached the full threshold. This Alert Action group should probably notify the appropriate people via email or SMS.
 
@@ -53,7 +53,7 @@
 2. **Give your new Logic App permissions to read, create, and modify resources within your environment:** Navigate to Resource groups, choose the resource group that you specified for 'Target Resource Group for Alerts'. Choose 'Access control (IAM)' from the menu. Click the '+ Add' button and choose 'Add role assignment'. For the 'Role', choose Contributor. For 'Assign access to', choose Logic App, now select 'ANFCapacityManager' (or the name you specified in step 1). Finally, click the 'Save' button. **Repeat as needed to give the Logic App the required access:**
    * **Resource Group containing ANFCapacityManager**: 'Contributor'
    * **Resource Group where Alert Rules will be created**: 'Contributor'
-   * **Subscription (or Resource Group) being monitored**: 'Reader'
+   * **Subscription (or Resource Group) being monitored**: 'Contributor'
 
    ![Add Role to RG](./img/addrole.png)
    <img src="./img/chooselogicapp.png" alt="" height="350" style="margin: 0 0 0 0; " />
