@@ -71,14 +71,11 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "ANFCapacityManagerPercent",
-            "location": "westus2",
-            "tags": {
-                "creator": "luces"
-            },
+            "name": "[parameters('Logic App Name')]",
+            "location": "[parameters('Location')]",
             "identity": {
-                "principalId": "1085ae81-ebde-43f3-b886-8b9389206731",
-                "tenantId": "890df2fb-c027-40fc-88ad-7dc5308deacc",
+                "principalId": "",
+                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -488,7 +485,7 @@
                                     {
                                         "name": "CapacityAlertInput",
                                         "type": "string",
-                                        "value": "90"
+                                        "value": "[parameters('Capacity Pool % Full Threshold')]"
                                     }
                                 ]
                             }
@@ -505,7 +502,7 @@
                                     {
                                         "name": "actiongroup_rg",
                                         "type": "string",
-                                        "value": "sluce.rg"
+                                        "value": "[parameters('Existing Action Group Resource Group')]"
                                     }
                                 ]
                             }
@@ -522,8 +519,8 @@
                                     {
                                         "name": "action_group",
                                         "type": "string",
-                                        "value": "seanluce"
-                                    }
+                                        "value": "[parameters('Existing Action Group Name for Capacity Notifications')]"
+                                }
                                 ]
                             }
                         },
@@ -556,7 +553,7 @@
                                     {
                                         "name": "target_rg",
                                         "type": "string",
-                                        "value": "sluce.rg"
+                                        "value": "[parameters('Target Resource Group for Alerts')]"
                                     }
                                 ]
                             }
@@ -573,7 +570,7 @@
                                     {
                                         "name": "monitor_rg",
                                         "type": "string",
-                                        "value": "SouthC.rg"
+                                        "value": "[parameters('Target Resource Group to Monitor')]"
                                     }
                                 ]
                             }
@@ -590,29 +587,12 @@
                                     {
                                         "name": "VolumeAlertInput",
                                         "type": "string",
-                                        "value": "5"
+                                        "value": "[parameters('Volume % Full Threshold')]"
                                     }
                                 ]
                             }
                         },
                         "Set_Volume_AutoGrow_Percent": {
-                            "runAfter": {
-                                "Set_Volume_AutoGrow_Threshold_(consumed)": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VolumeAutoGrowInput",
-                                        "type": "string",
-                                        "value": "10"
-                                    }
-                                ]
-                            }
-                        },
-                        "Set_Volume_AutoGrow_Threshold_(consumed)": {
                             "runAfter": {
                                 "Set_Volume_Alert_Percentage_(consumed)": [
                                     "Succeeded"
@@ -622,9 +602,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "VolumeGrowThreshold",
+                                        "name": "VolumeAutoGrowInput",
                                         "type": "string",
-                                        "value": "10"
+                                        "value": "[parameters('AutoGrow Percent Increase')]"
                                     }
                                 ]
                             }
