@@ -6,6 +6,9 @@
 
 **An Azure Logic App that manages capacity based alert rules and automatically increases volume sizes to prevent your Azure NetApp Files volumes from running out of space.**
 
+## Change Log
+* March 3, 2021 - Change volume metric from "Volume Consumed Size" to "Percentage Volume Consumed Size"
+
 ## Alert Management
 
 * When an Azure NetApp Files Capacity Pool or Volume is created, ANFCapacityManager creates a metric alert rule based on the specified percent consumed threshold.
