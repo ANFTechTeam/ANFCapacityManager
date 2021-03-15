@@ -307,6 +307,22 @@
                                 ]
                             }
                         },
+                        "Initialize_Cumulative_Destination_Quota": {
+                            "runAfter": {
+                                "Initialize_Previous_Cumulative_Destination_Quota": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "CumulativeDestinationQuota",
+                                        "type": "integer"
+                                    }
+                                ]
+                            }
+                        },
                         "Initialize_Cumulative_Volume_Quota": {
                             "runAfter": {
                                 "Initialize_Previous_Cumulative_Volume_Quota": [
@@ -383,6 +399,22 @@
                                     {
                                         "name": "AutoGrowNewSizeGibibytes",
                                         "type": "float"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Previous_Cumulative_Destination_Quota": {
+                            "runAfter": {
+                                "Initialize_Cumulative_Volume_Quota": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PreviousCumulativeDestinationQuota",
+                                        "type": "integer"
                                     }
                                 ]
                             }
@@ -1377,7 +1409,7 @@
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
-                                                                        "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
+                                                                        "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-12-01"
                                                                     }
                                                                 },
                                                                 "Parse_Details_of_the_Resource": {
@@ -1411,6 +1443,42 @@
                                                                                         "creationToken": {
                                                                                             "type": "string"
                                                                                         },
+                                                                                        "dataProtection": {
+                                                                                            "properties": {
+                                                                                                "backup": {
+                                                                                                    "properties": {
+                                                                                                        "backupEnabled": {
+                                                                                                            "type": "boolean"
+                                                                                                        },
+                                                                                                        "backupPolicyId": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "policyEnforced": {
+                                                                                                            "type": "boolean"
+                                                                                                        },
+                                                                                                        "vaultId": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "type": "object"
+                                                                                                },
+                                                                                                "replication": {
+                                                                                                    "properties": {
+                                                                                                        "endPointType": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "remoteVolumeRegion": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "remoteVolumeResourceId": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "type": "object"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        },
                                                                                         "exportPolicy": {
                                                                                             "properties": {
                                                                                                 "rules": {
@@ -1422,10 +1490,28 @@
                                                                                                             "cifs": {
                                                                                                                 "type": "boolean"
                                                                                                             },
-                                                                                                            "nfsv3": {
+                                                                                                            "hasRootAccess": {
                                                                                                                 "type": "boolean"
                                                                                                             },
-                                                                                                            "nfsv4": {
+                                                                                                            "kerberos5ReadOnly": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "kerberos5ReadWrite": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "kerberos5iReadOnly": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "kerberos5iReadWrite": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "kerberos5pReadOnly": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "kerberos5pReadWrite": {
+                                                                                                                "type": "boolean"
+                                                                                                            },
+                                                                                                            "nfsv3": {
                                                                                                                 "type": "boolean"
                                                                                                             },
                                                                                                             "nfsv41": {
@@ -1451,6 +1537,9 @@
                                                                                         },
                                                                                         "fileSystemId": {
                                                                                             "type": "string"
+                                                                                        },
+                                                                                        "kerberosEnabled": {
+                                                                                            "type": "boolean"
                                                                                         },
                                                                                         "mountTargets": {
                                                                                             "items": {
@@ -1940,7 +2029,7 @@
                                                                         },
                                                                         "Resize_the_Volume": {
                                                                             "runAfter": {
-                                                                                "Test_if_New_Volume_Size_will_fit_in_Capacity_Pool": [
+                                                                                "Test_if_Volume_is_CRR_Source": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -2062,20 +2151,231 @@
                                                                                 ]
                                                                             },
                                                                             "type": "If"
-                                                                        }
+                                                                        },
+                                                                        "Test_if_Volume_is_CRR_Source": {
+                                                                            "actions": {
+                                                                                "For_each_Volume_in_Destination_Pool": {
+                                                                                    "foreach": "@body('Parse_List_of_Volumes_in_Destination_Pool')?['value']",
+                                                                                    "actions": {
+                                                                                        "Parse_JSON_for_Destination_Volume": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "ParseJson",
+                                                                                            "inputs": {
+                                                                                                "content": "@items('For_each_Volume_in_Destination_Pool')",
+                                                                                                "schema": {
+                                                                                                    "properties": {
+                                                                                                        "etag": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "id": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "location": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "name": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "properties": {
+                                                                                                            "properties": {
+                                                                                                                "baremetalTenantId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "creationToken": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "exportPolicy": {
+                                                                                                                    "properties": {
+                                                                                                                        "rules": {
+                                                                                                                            "items": {
+                                                                                                                                "properties": {
+                                                                                                                                    "allowedClients": {
+                                                                                                                                        "type": "string"
+                                                                                                                                    },
+                                                                                                                                    "cifs": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "nfsv3": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "nfsv4": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "ruleIndex": {
+                                                                                                                                        "type": "integer"
+                                                                                                                                    },
+                                                                                                                                    "unixReadOnly": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "unixReadWrite": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    }
+                                                                                                                                },
+                                                                                                                                "required": [],
+                                                                                                                                "type": "object"
+                                                                                                                            },
+                                                                                                                            "type": "array"
+                                                                                                                        }
+                                                                                                                    },
+                                                                                                                    "type": "object"
+                                                                                                                },
+                                                                                                                "fileSystemId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "mountTargets": {
+                                                                                                                    "items": {
+                                                                                                                        "properties": {
+                                                                                                                            "endIp": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "fileSystemId": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "gateway": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "ipAddress": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "mountTargetId": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "netmask": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "provisioningState": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "smbServerFQDN": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "startIp": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "subnet": {
+                                                                                                                                "type": "string"
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        "required": [],
+                                                                                                                        "type": "object"
+                                                                                                                    },
+                                                                                                                    "type": "array"
+                                                                                                                },
+                                                                                                                "name": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "protocolTypes": {
+                                                                                                                    "items": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "type": "array"
+                                                                                                                },
+                                                                                                                "provisioningState": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "serviceLevel": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "subnetId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "usageThreshold": {
+                                                                                                                    "type": "integer"
+                                                                                                                },
+                                                                                                                "usedBytes": {
+                                                                                                                    "type": "integer"
+                                                                                                                }
+                                                                                                            },
+                                                                                                            "type": "object"
+                                                                                                        },
+                                                                                                        "tags": {
+                                                                                                            "properties": {
+                                                                                                                "creator": {
+                                                                                                                    "type": "string"
+                                                                                                                }
+                                                                                                            },
+                                                                                                            "type": "object"
+                                                                                                        },
+                                                                                                        "type": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "type": "object"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Destination_Cumulative": {
+                                                                                            "runAfter": {
+                                                                                                "Set_Previous_Destination_Comulative": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "CumulativeDestinationQuota",
+                                                                                                "value": "@add(variables('PreviousCumulativeDestinationQuota'),body('Parse_JSON_for_Destination_Volume')?['properties']?['usageThreshold'])"
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Previous_Destination_Comulative": {
+                                                                                            "runAfter": {
+                                                                                                "Parse_JSON_for_Destination_Volume": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "PreviousCumulativeDestinationQuota",
+                                                                                                "value": "@variables('CumulativeDestinationQuota')"
+                                                                                            }
+                                                                                        }                                                                          
                                                                     },
                                                                     "runAfter": {
-                                                                        "Parse_Details_of_the_Resource": [
+                                                                        "Parse_List_of_Volumes_in_Destination_Pool": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "else": {
-                                                                        "actions": {
-                                                                            "Parse_Details_of_the_Resource_(Capacity_Pool)": {
+                                                                    "type": "Foreach",
+                                                                                    "runtimeConfiguration": {
+                                                                                        "concurrency": {
+                                                                                            "repetitions": 1
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Get_Destination_Pool_Details": {
                                                                                 "runAfter": {},
+                                                                                "type": "Http",
+                                                                                    "inputs": {
+                                                                                        "authentication": {
+                                                                                            "type": "ManagedServiceIdentity"
+                                                                                        },
+                                                                                        "method": "GET",
+                                                                                        "uri": "https://management.azure.com/subscriptions/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[2]}/resourceGroups/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[8]}/capacityPools/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[10]}?api-version=2020-12-01"
+                                                                                    }
+                                                                                },
+                                                                                "Get_all_Volumes_in_Destination_Pool": {
+                                                                                    "runAfter": {
+                                                                                        "Parse_Details_of_Destination_Pool": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "Http",
+                                                                                    "inputs": {
+                                                                                        "authentication": {
+                                                                                            "type": "ManagedServiceIdentity"
+                                                                                        },
+                                                                                        "method": "GET",
+                                                                                        "uri": "https://management.azure.com/subscriptions/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[2]}/resourceGroups/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[8]}/capacityPools/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[10]}/volumes?api-version=2020-12-01"
+                                                                                    }
+                                                                                },
+                                                                                "Parse_Details_of_Destination_Pool": {
+                                                                                    "runAfter": {
+                                                                                        "Get_Destination_Pool_Details": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
                                                                                 "type": "ParseJson",
                                                                                 "inputs": {
-                                                                                    "content": "@body('Get_Details_of_the_Resource')",
+                                                                                    "content": "@body('Get_Destination_Pool_Details')",
                                                                                     "schema": {
                                                                                         "properties": {
                                                                                             "etag": {
@@ -2092,10 +2392,16 @@
                                                                                             },
                                                                                             "properties": {
                                                                                                 "properties": {
+                                                                                                    "encryptionType": {
+                                                                                                        "type": "string"
+                                                                                                    },
                                                                                                     "poolId": {
                                                                                                         "type": "string"
                                                                                                     },
                                                                                                     "provisioningState": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "qosType": {
                                                                                                         "type": "string"
                                                                                                     },
                                                                                                     "serviceLevel": {
@@ -2103,6 +2409,23 @@
                                                                                                     },
                                                                                                     "size": {
                                                                                                         "type": "integer"
+                                                                                                    },
+                                                                                                    "totalThroughputMibps": {
+                                                                                                        "type": "number"
+                                                                                                    },
+                                                                                                    "utilizedThroughputMibps": {
+                                                                                                        "type": "number"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "tags": {
+                                                                                                "properties": {
+                                                                                                    "billing": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "creator": {
+                                                                                                        "type": "string"
                                                                                                     }
                                                                                                 },
                                                                                                 "type": "object"
@@ -2114,16 +2437,236 @@
                                                                                         "type": "object"
                                                                                     }
                                                                                 }
+                                                                            },
+                                                                            "Parse_List_of_Volumes_in_Destination_Pool": {
+                                                                                "runAfter": {
+                                                                                    "Get_all_Volumes_in_Destination_Pool": [
+                                                                                        "Succeeded"
+                                                                                    ]
+                                                                                },
+                                                                                "type": "ParseJson",
+                                                                                "inputs": {
+                                                                                    "content": "@body('Get_all_Volumes_in_Destination_Pool')",
+                                                                                    "schema": {
+                                                                                        "properties": {
+                                                                                            "value": {
+                                                                                                "items": {
+                                                                                                    "properties": {
+                                                                                                        "etag": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "id": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "location": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "name": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "properties": {
+                                                                                                            "properties": {
+                                                                                                                "baremetalTenantId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "creationToken": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "exportPolicy": {
+                                                                                                                    "properties": {
+                                                                                                                        "rules": {
+                                                                                                                            "items": {
+                                                                                                                                "properties": {
+                                                                                                                                    "allowedClients": {
+                                                                                                                                        "type": "string"
+                                                                                                                                    },
+                                                                                                                                    "cifs": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "nfsv3": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "nfsv4": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "nfsv41": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "ruleIndex": {
+                                                                                                                                        "type": "integer"
+                                                                                                                                    },
+                                                                                                                                    "unixReadOnly": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    },
+                                                                                                                                    "unixReadWrite": {
+                                                                                                                                        "type": "boolean"
+                                                                                                                                    }
+                                                                                                                                },
+                                                                                                                                "required": [],
+                                                                                                                                "type": "object"
+                                                                                                                            },
+                                                                                                                            "type": "array"
+                                                                                                                        }
+                                                                                                                    },
+                                                                                                                    "type": "object"
+                                                                                                                },
+                                                                                                                "fileSystemId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "mountTargets": {
+                                                                                                                    "items": {
+                                                                                                                        "properties": {
+                                                                                                                            "endIp": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "fileSystemId": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "gateway": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "ipAddress": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "mountTargetId": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "netmask": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "provisioningState": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "startIp": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "subnet": {
+                                                                                                                                "type": "string"
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        "required": [],
+                                                                                                                        "type": "object"
+                                                                                                                    },
+                                                                                                                    "type": "array"
+                                                                                                                },
+                                                                                                                "name": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "protocolTypes": {
+                                                                                                                    "items": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "type": "array"
+                                                                                                                },
+                                                                                                                "provisioningState": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "serviceLevel": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "subnetId": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "usageThreshold": {
+                                                                                                                    "type": "integer"
+                                                                                                                }
+                                                                                                            },
+                                                                                                            "type": "object"
+                                                                                                        },
+                                                                                                        "type": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "required": [],
+                                                                                                    "type": "object"
+                                                                                                },
+                                                                                                "type": "array"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Test_if_Destination_Pool_will_fit_new_Volume_Size": {
+                                                                                "actions": {},
+                                                                                "runAfter": {
+                                                                                    "For_each_Volume_in_Destination_Pool": [
+                                                                                        "Succeeded"
+                                                                                    ]
+                                                                                },
+                                                                                "else": {
+                                                                                    "actions": {
+                                                                                        "Resize_Destination_Pool": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "Http",
+                                                                                            "inputs": {
+                                                                                                "authentication": {
+                                                                                                    "type": "ManagedServiceIdentity"
+                                                                                                },
+                                                                                                "body": {
+                                                                                                    "location": "@{body('Parse_Details_of_Destination_Pool')?['location']}",
+                                                                                                    "properties": {
+                                                                                                        "serviceLevel": "@{body('Parse_Details_of_Destination_Pool')?['properties']?['serviceLevel']}",
+                                                                                                        "size": "@add(sub(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),mod(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),1099511627776)),1099511627776)"
+                                                                                                    }
+                                                                                                },
+                                                                                                "method": "PUT",
+                                                                                                "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-02-01"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "expression": {
+                                                                                    "and": [
+                                                                                        {
+                                                                                            "lessOrEquals": [
+                                                                                                "@sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])",
+                                                                                                "@body('Parse_Details_of_Destination_Pool')?['properties']?['size']"
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                "type": "If"
                                                                             }
-                                                                        }
-                                                                    },
-                                                                    "expression": {
+                                                                        },
+                                                                        "runAfter": {
+                                                                            "Test_if_New_Volume_Size_will_fit_in_Capacity_Pool": [
+                                                                                "Succeeded"
+                                                                            ]
+                                                                        },
+                                                                        "expression": {
+                                                                            "and": [
+                                                                                {
+                                                                                    "equals": [
+                                                                                        "@body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['endPointType']",
+                                                                                        "Src"
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        "type": "If"
+                                                                    }
+                                                                },
+                                                                "runAfter": {
+                                                                    "Parse_Details_of_the_Resource": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "expression": {
                                                                         "and": [
                                                                             {
                                                                                 "contains": [
                                                                                     "@body('Parse_Details_of_the_Resource')?['type']",
                                                                                     "volumes"
                                                                                 ]
+                                                                            },
+                                                                            {
+                                                                                "not": {
+                                                                                    "equals": [
+                                                                                        "@body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['endPointType']",
+                                                                                        "Dst"
+                                                                                    ]
+                                                                                }
                                                                             }
                                                                         ]
                                                                     },

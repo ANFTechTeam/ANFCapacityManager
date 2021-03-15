@@ -7,7 +7,9 @@
 **An Azure Logic App that manages capacity based alert rules and automatically increases volume sizes to prevent your Azure NetApp Files volumes from running out of space.**
 
 ## Change Log
-* March 3, 2021 - Change volume metric from "Volume Consumed Size" to "Percentage Volume Consumed Size"
+
+* March 14, 2021 - CRR Source Volumes; added logic to autogrow function to increase CRR target capacity pool if required. Logic App will need contributor access to target volume's resource group.
+* March 3, 2021  - Change volume metric from "Volume Consumed Size" to "Percentage Volume Consumed Size"
 
 ## Alert Management
 
@@ -19,6 +21,7 @@
 
 * Optionally, when an Azure NetApp Files Volume reaches the specified percent consumed threshold, the volume quota (size) will be increased by the percent specified between 10-100%.
 * If increasing the volume size exceeds the capacity of the containing capacity pool, the capacity pool size will also be increased to accomodate the new volume size.
+* Because CRR target volumes will be increased to match the source, ANFCapacityManager will now verify there is sufficient space in the target volume's capacity pool and increase capacity as needed.
 * For an exmaple of how this works, click [here](./ResizeWorkflow.md).
 
 ## Prerequisites and Permissions
