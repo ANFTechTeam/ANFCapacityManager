@@ -274,7 +274,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_Cumulative_Volume_Quota": [
+                                "Initialize_Cumulative_Destination_Quota": [
                                     "Succeeded"
                                 ]
                             },
