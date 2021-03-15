@@ -15,7 +15,7 @@ The Logic App is triggered and the alert rule 'ANF_Pool_StandardPool' is automat
 Two new ANF Volumes are created; 'MyLargerVolume' which is 3.9TiB (3996 GiB) and 'MyVolume' which is 100 GiB:
 ![Volumes Before Resize](./img/volumesbeforeresize.png)
 
-The Logic App automatically creats two additional alert rules; one for each volume.
+The Logic App automatically creates two additional alert rules; one for each volume.
 ![Volume Alert Rule](./img/newlargervolumealertrule.png)
 
 Notice that our 4TiB Capacity Pool is 100% allocated: 3996GiB + 100GiB = 4096GiB / 1024GiB = 4TiB  
