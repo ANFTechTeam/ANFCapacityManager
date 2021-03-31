@@ -30,14 +30,14 @@
                 "description": "Leave blank to monitor your entire subscription (recommended). Alternatively, you can specify a single resource group to monitor for new Azure NetApp Files resources."
             }
         },
-        "Capacity Pool % Full Threshold": {
+        "Capacity Pool Percent Full Threshold": {
             "defaultValue": "90",
             "type": "String",
             "metadata": {
                 "description": "This is the percent consumed threshold that will trigger an alert for all Azure NetApp Files Capacity Pools. A whole number between 1 and 100 is required."
             }
         },
-        "Volume % Full Threshold": {
+        "Volume Percent Full Threshold": {
             "defaultValue": "80",
             "type": "String",
             "metadata": {
@@ -517,7 +517,7 @@
                                     {
                                         "name": "CapacityAlertInput",
                                         "type": "string",
-                                        "value": "[parameters('Capacity Pool % Full Threshold')]"
+                                        "value": "[parameters('Capacity Pool Percent Full Threshold')]"
                                     }
                                 ]
                             }
@@ -619,7 +619,7 @@
                                     {
                                         "name": "VolumeAlertInput",
                                         "type": "string",
-                                        "value": "[parameters('Volume % Full Threshold')]"
+                                        "value": "[parameters('Volume Percent Full Threshold')]"
                                     }
                                 ]
                             }
