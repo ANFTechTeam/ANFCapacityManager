@@ -2137,7 +2137,115 @@
                                                                                             "method": "PUT",
                                                                                             "uri": "https://management.azure.com/@{body('Parse_Details_of_the_Containing_Pool')?['id']}?api-version=2020-02-01"
                                                                                         }
+                                                                                    },
+                                                                                    "Wait_until_Pool_Status_is_Succeeded": {
+                                                                                        "actions": {
+                                                                                            "Delay_if_Pool_not_Succeeded": {
+                                                                                                "runAfter": {
+                                                                                                    "Parse_Source_Pool_Status": [
+                                                                                                        "Succeeded"
+                                                                                                    ]
+                                                                                                },
+                                                                                                "type": "Wait",
+                                                                                                "inputs": {
+                                                                                                    "interval": {
+                                                                                                        "count": 30,
+                                                                                                        "unit": "Second"
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "Get_Source_Pool_Status": {
+                                                                                                "runAfter": {},
+                                                                                                "type": "Http",
+                                                                                                "inputs": {
+                                                                                                    "authentication": {
+                                                                                                        "type": "ManagedServiceIdentity"
+                                                                                                    },
+                                                                                                    "method": "GET",
+                                                                                                    "uri": "https://management.azure.com/@{body('Parse_Details_of_the_Containing_Pool')?['id']}?api-version=2020-12-01"
+                                                                                                }
+                                                                                            },
+                                                                                            "Parse_Source_Pool_Status": {
+                                                                                                "runAfter": {
+                                                                                                    "Get_Source_Pool_Status": [
+                                                                                                        "Succeeded"
+                                                                                                    ]
+                                                                                                },
+                                                                                                "type": "ParseJson",
+                                                                                                "inputs": {
+                                                                                                    "content": "@body('Get_Source_Pool_Status')",
+                                                                                                    "schema": {
+                                                                                                        "properties": {
+                                                                                                            "etag": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "id": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "location": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "name": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "properties": {
+                                                                                                                "properties": {
+                                                                                                                    "encryptionType": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "poolId": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "provisioningState": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "qosType": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "serviceLevel": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "size": {
+                                                                                                                        "type": "integer"
+                                                                                                                    },
+                                                                                                                    "totalThroughputMibps": {
+                                                                                                                        "type": "number"
+                                                                                                                    },
+                                                                                                                    "utilizedThroughputMibps": {
+                                                                                                                        "type": "integer"
                                                                                     }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "tags": {
+                                                                                "properties": {
+                                                                                    "creator": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "runAfter": {
+                                                            "Resize_the_Pool": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "expression": "@equals(body('Parse_Source_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
+                                                        "limit": {
+                                                            "count": 60,
+                                                            "timeout": "PT1H"
+                                                        },
+                                                        "type": "Until"
+                                                    }
                                                                                 }
                                                                             },
                                                                             "expression": {
@@ -2613,7 +2721,115 @@
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-02-01"
                                                                                             }
+                                                                                        },
+                                                                                        "Wait_until_Destination_Pool_Status_is_Succeeded": {
+                                                                                            "actions": {
+                                                                                                "Delay": {
+                                                                                                    "runAfter": {
+                                                                                                        "Parse_Destination_Pool_Status": [
+                                                                                                            "Succeeded"
+                                                                                                        ]
+                                                                                                    },
+                                                                                                    "type": "Wait",
+                                                                                                    "inputs": {
+                                                                                                        "interval": {
+                                                                                                            "count": 30,
+                                                                                                            "unit": "Second"
+                                                                                                        }
                                                                                         }
+                                                                                    },
+                                                                                    "Get_Destination_Pool_Status": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "Http",
+                                                                                        "inputs": {
+                                                                                            "authentication": {
+                                                                                                "type": "ManagedServiceIdentity"
+                                                                                            },
+                                                                                            "method": "GET",
+                                                                                            "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-12-01"
+                                                                                        }
+                                                                                    },
+                                                                                    "Parse_Destination_Pool_Status": {
+                                                                                        "runAfter": {
+                                                                                            "Get_Destination_Pool_Status": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "ParseJson",
+                                                                                        "inputs": {
+                                                                                            "content": "@body('Get_Destination_Pool_Status')",
+                                                                                            "schema": {
+                                                                                                "properties": {
+                                                                                                    "etag": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "id": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "location": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "name": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "properties": {
+                                                                                                        "properties": {
+                                                                                                            "encryptionType": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "poolId": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "provisioningState": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "qosType": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "serviceLevel": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "size": {
+                                                                                                                "type": "integer"
+                                                                                                            },
+                                                                                                            "totalThroughputMibps": {
+                                                                                                                "type": "number"
+                                                                                                            },
+                                                                                                            "utilizedThroughputMibps": {
+                                                                                                                "type": "integer"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "type": "object"
+                                                                                                    },
+                                                                                                    "tags": {
+                                                                                                        "properties": {
+                                                                                                            "creator": {
+                                                                                                                "type": "string"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "type": "object"
+                                                                                                    },
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "runAfter": {
+                                                                                    "Resize_Destination_Pool": [
+                                                                                        "Succeeded"
+                                                                                    ]
+                                                                                },
+                                                                                "expression": "@equals(body('Parse_Destination_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
+                                                                                "limit": {
+                                                                                    "count": 60,
+                                                                                    "timeout": "PT1H"
+                                                                                },
+                                                                                "type": "Until"
+                                                                            }
                                                                                     }
                                                                                 },
                                                                                 "expression": {
