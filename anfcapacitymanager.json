@@ -2047,7 +2047,7 @@
                                                                                         "usageThreshold": "@variables('AutoGrowNewSizeEvenGibi')"
                                                                                     }
                                                                                 },
-                                                                                "method": "PUT",
+                                                                                "method": "PATCH",
                                                                                 "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
                                                                             }
                                                                         },
@@ -2134,7 +2134,7 @@
                                                                                                     "size": "@add(sub(sub(add(variables('CumulativeVolumeQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),mod(sub(add(variables('CumulativeVolumeQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),1099511627776)),1099511627776)\r\n"
                                                                                                 }
                                                                                             },
-                                                                                            "method": "PUT",
+                                                                                            "method": "PATCH",
                                                                                             "uri": "https://management.azure.com/@{body('Parse_Details_of_the_Containing_Pool')?['id']}?api-version=2020-02-01"
                                                                                         }
                                                                                     },
@@ -2718,7 +2718,7 @@
                                                                                                         "size": "@add(sub(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),mod(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),1099511627776)),1099511627776)"
                                                                                                     }
                                                                                                 },
-                                                                                                "method": "PUT",
+                                                                                                "method": "PATCH",
                                                                                                 "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-02-01"
                                                                                             }
                                                                                         },
