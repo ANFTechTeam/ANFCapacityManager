@@ -2212,7 +2212,7 @@
                                                                                                                         "type": "number"
                                                                                                                     },
                                                                                                                     "utilizedThroughputMibps": {
-                                                                                                                        "type": "integer"
+                                                                                                                        "type": "number"
                                                                                     }
                                                                                 },
                                                                                 "type": "object"
@@ -2796,7 +2796,7 @@
                                                                                                                 "type": "number"
                                                                                                             },
                                                                                                             "utilizedThroughputMibps": {
-                                                                                                                "type": "integer"
+                                                                                                                "type": "number"
                                                                                                             }
                                                                                                         },
                                                                                                         "type": "object"
