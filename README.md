@@ -8,6 +8,7 @@
 
 ## Change Log
 
+* April 12, 2021 - Added logic to check if pool resize is complete before attempting to resize volume. Changed 'put' methods to 'patch' to avoid wiping out tags and snapshot policies.
 * March 14, 2021 - CRR Source Volumes; added logic to autogrow function to increase CRR target capacity pool if required. Logic App will need contributor access to target volume's resource group.
 * March 3, 2021  - Change volume metric from "Volume Consumed Size" to "Percentage Volume Consumed Size"
 
