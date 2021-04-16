@@ -690,9 +690,9 @@
                                                                                     "type": "ManagedServiceIdentity"
                                                                                 },
                                                                                 "body": {
-                                                                                    "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
+                                                                                    "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
                                                                                     "location": "global",
-                                                                                    "name": "ANF_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
+                                                                                    "name": "ANF_Pool_@{first(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}",
                                                                                     "properties": {
                                                                                         "actions": [
                                                                                             {
@@ -721,7 +721,7 @@
                                                                                             ],
                                                                                             "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                         },
-                                                                                        "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                        "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                         "enabled": true,
                                                                                         "evaluationFrequency": "PT1M",
                                                                                         "scopes": [
@@ -740,7 +740,7 @@
                                                                                     "Content-Type": "application/json"
                                                                                 },
                                                                                 "method": "PUT",
-                                                                                "uri": "https://management.azure.com/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                "uri": "https://management.azure.com/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}_@{last(split(body('Parse_Capacity_Pool_JSON')?['name'],'/'))}?api-version=2018-03-01"
                                                                             }
                                                                         },
                                                                         "Created_Capacity_Pool_Alert": {
@@ -830,7 +830,7 @@
                                                                                                 "type": "ManagedServiceIdentity"
                                                                                             },
                                                                                             "method": "DELETE",
-                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{last(split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/'))}?api-version=2018-03-01"
+                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[8]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}?api-version=2018-03-01"
                                                                                         }
                                                                                     },
                                                                                     "Deleted_Capacity_Pool_Alert": {
@@ -975,9 +975,9 @@
                                                                                     "type": "ManagedServiceIdentity"
                                                                                 },
                                                                                 "body": {
-                                                                                    "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
+                                                                                    "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
                                                                                     "location": "global",
-                                                                                    "name": "ANF_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
+                                                                                    "name": "ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}",
                                                                                     "properties": {
                                                                                         "actions": [
                                                                                             {
@@ -1006,7 +1006,7 @@
                                                                                             ],
                                                                                             "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                         },
-                                                                                        "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                        "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                         "enabled": true,
                                                                                         "evaluationFrequency": "PT1M",
                                                                                         "scopes": [
@@ -1025,7 +1025,7 @@
                                                                                     "Content-Type": "application/json"
                                                                                 },
                                                                                 "method": "PUT",
-                                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Volume_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}?api-version=2018-03-01"
                                                                             }
                                                                         },
                                                                         "Created_Volume_Alert": {
@@ -1214,7 +1214,7 @@
                                                                                                 "type": "ManagedServiceIdentity"
                                                                                             },
                                                                                             "method": "DELETE",
-                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Volume_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{last(split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/'))}?api-version=2018-03-01"
+                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[8]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[12]}?api-version=2018-03-01"
                                                                                         }
                                                                                     },
                                                                                     "Deleted_Volume_Alert": {
@@ -3315,7 +3315,7 @@
                                                                 ],
                                                                 "odata.type": null
                                                             },
-                                                            "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                            "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                             "enabled": true,
                                                             "scopes": [
                                                                 "/subscriptions/@{variables('subid')}"
@@ -3389,7 +3389,7 @@
                                                                 ],
                                                                 "odata.type": null
                                                             },
-                                                            "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                            "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                             "enabled": true,
                                                             "scopes": [
                                                                 "/subscriptions/@{variables('subid')}"
@@ -3463,7 +3463,7 @@
                                                                 ],
                                                                 "odata.type": null
                                                             },
-                                                            "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                            "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                             "enabled": true,
                                                             "scopes": [
                                                                 "/subscriptions/@{variables('subid')}"
@@ -3537,7 +3537,7 @@
                                                                 ],
                                                                 "odata.type": null
                                                             },
-                                                            "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                            "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                             "enabled": true,
                                                             "scopes": [
                                                                 "/subscriptions/@{variables('subid')}"
@@ -3570,9 +3570,9 @@
                                                                                 "type": "ManagedServiceIdentity"
                                                                             },
                                                                             "body": {
-                                                                                "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}",
+                                                                                "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}",
                                                                                 "location": "global",
-                                                                                "name": "ANF_Pool_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}",
+                                                                                "name": "ANF_Pool_@{first(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}",
                                                                                 "properties": {
                                                                                     "actions": [
                                                                                         {
@@ -3601,7 +3601,7 @@
                                                                                         ],
                                                                                         "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                     },
-                                                                                    "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                    "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                     "enabled": true,
                                                                                     "evaluationFrequency": "PT1M",
                                                                                     "scopes": [
@@ -3617,7 +3617,7 @@
                                                                                 "type": "Microsoft.Insights/metricAlerts"
                                                                             },
                                                                             "method": "PUT",
-                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}?api-version=2018-03-01"
+                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}_@{last(split(body('Parse_Individual_Existing_Pool')?['name'],'/'))}?api-version=2018-03-01"
                                                                         }
                                                                     },
                                                                     "For_each_Volume": {
@@ -3633,9 +3633,9 @@
                                                                                                 "type": "ManagedServiceIdentity"
                                                                                             },
                                                                                             "body": {
-                                                                                                "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Volume_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}",
+                                                                                                "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}",
                                                                                                 "location": "global",
-                                                                                                "name": "ANF_Volume_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}",
+                                                                                                "name": "ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}",
                                                                                                 "properties": {
                                                                                                     "actions": [
                                                                                                         {
@@ -3664,7 +3664,7 @@
                                                                                                         ],
                                                                                                         "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                     },
-                                                                                                    "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                    "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                     "enabled": true,
                                                                                                     "evaluationFrequency": "PT1M",
                                                                                                     "scopes": [
@@ -3680,7 +3680,7 @@
                                                                                                 "type": "Microsoft.Insights/metricAlerts"
                                                                                             },
                                                                                             "method": "PUT",
-                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Volume_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}?api-version=2018-03-01"
                                                                                         }
                                                                                     }
                                                                                 },
@@ -4350,7 +4350,7 @@
                                                                     ],
                                                                     "odata.type": null
                                                                 },
-                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                 "enabled": true,
                                                                 "scopes": [
                                                                     "/subscriptions/@{variables('subid')}"
@@ -4418,7 +4418,7 @@
                                                                     ],
                                                                     "odata.type": null
                                                                 },
-                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                 "enabled": true,
                                                                 "scopes": [
                                                                     "/subscriptions/@{variables('subid')}"
@@ -4486,7 +4486,7 @@
                                                                     ],
                                                                     "odata.type": null
                                                                 },
-                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                 "enabled": true,
                                                                 "scopes": [
                                                                     "/subscriptions/@{variables('subid')}"
@@ -4554,7 +4554,7 @@
                                                                     ],
                                                                     "odata.type": null
                                                                 },
-                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                 "enabled": true,
                                                                 "scopes": [
                                                                     "/subscriptions/@{variables('subid')}"
@@ -4590,9 +4590,9 @@
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "body": {
-                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
+                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "location": "global",
-                                                                                            "name": "ANF_Pool_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
+                                                                                            "name": "ANF_Pool__@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "properties": {
                                                                                                 "actions": [
                                                                                                     {
@@ -4621,7 +4621,7 @@
                                                                                                     ],
                                                                                                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                 },
-                                                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                 "enabled": true,
                                                                                                 "evaluationFrequency": "PT1M",
                                                                                                 "scopes": [
@@ -4637,7 +4637,7 @@
                                                                                             "type": "Microsoft.Insights/metricAlerts"
                                                                                         },
                                                                                         "method": "PUT",
-                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
                                                                                     }
                                                                                 },
                                                                                 "For_each_Volume_in_Sub": {
@@ -4653,9 +4653,9 @@
                                                                                                             "type": "ManagedServiceIdentity"
                                                                                                         },
                                                                                                         "body": {
-                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Volume_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
+                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
                                                                                                             "location": "global",
-                                                                                                            "name": "ANF_Volume_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
+                                                                                                            "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
                                                                                                             "properties": {
                                                                                                                 "actions": [
                                                                                                                     {
@@ -4684,7 +4684,7 @@
                                                                                                                     ],
                                                                                                                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                                 },
-                                                                                                                "description": "Created by ANFCapacityManager v3.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                                 "enabled": true,
                                                                                                                 "evaluationFrequency": "PT1M",
                                                                                                                 "scopes": [
@@ -4700,7 +4700,7 @@
                                                                                                             "type": "Microsoft.Insights/metricAlerts"
                                                                                                         },
                                                                                                         "method": "PUT",
-                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Volume_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol__@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
                                                                                                     }
                                                                                                 }
                                                                                             },

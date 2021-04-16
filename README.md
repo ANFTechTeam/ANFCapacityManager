@@ -8,6 +8,7 @@
 
 ## Change Log
 
+* April 16, 2021 - Added NetApp Account name to Metric Rules names to guarantee resource name uniqueness.
 * April 12, 2021 - Added logic to check if pool resize is complete before attempting to resize volume. Changed 'put' methods to 'patch' to avoid wiping out tags and snapshot policies.
 * March 14, 2021 - CRR Source Volumes; added logic to autogrow function to increase CRR target capacity pool if required. Logic App will need contributor access to target volume's resource group.
 * March 3, 2021  - Change volume metric from "Volume Consumed Size" to "Percentage Volume Consumed Size"
@@ -70,7 +71,7 @@
    * Creates an Alert called '**ANF_PoolDeleted**\[_*monitor_rg]*' to trigger the Logic App whenever a pool is deleted.
    * **NEW! Creates capacity based Metric Alert rules for existing volumes and capacity pools.**
   
-Once ANFCapacityManager is installed successfully you should experience the following behavior: When an Azure NetApp Files Capacity Pool or Volume is created, modified, or deleted, the Logic App will automatically create (or modify, or delete) a capacity based Metric Alert rule with the name '**ANF\_Pool\_*poolname***' or '**ANF\_Volume\_*poolname*_*volname***'. In addition, if you provided a value greater than 0 (zero) for the '**AutoGrow Percent Increase**' field, the Logic App will automatically increase the volume capacity by the percent specified if a volume reaches the consumed threshold.'
+Once ANFCapacityManager is installed successfully you should experience the following behavior: When an Azure NetApp Files Capacity Pool or Volume is created, modified, or deleted, the Logic App will automatically create (or modify, or delete) a capacity based Metric Alert rule with the name '**ANF\_Pool\_*accountname*\_*poolname***' or '**ANF\_Vol\_*accountname*\_*poolname*\_*volname***'. In addition, if you provided a value greater than 0 (zero) for the '**AutoGrow Percent Increase**' field, the Logic App will automatically increase the volume capacity by the percent specified if a volume reaches the consumed threshold.'
 
 ## Modifying Alert Thresholds and AutoGrow Amount
 
