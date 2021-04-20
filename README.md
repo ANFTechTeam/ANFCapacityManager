@@ -40,6 +40,8 @@
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FANFTechTeam%2FANFCapacityManager%2Fmaster%2Fanfcapacitymanager.json)
 
+[![Deploy to Azure Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FANFTechTeam%2FANFCapacityManager%2Fmaster%2Fanfcapacitymanager_usgov.json)
+
 ## **IMPORTANT: Follow all installation steps completely!**  
 
 1. **Click the button above to deploy this Logic App to Azure.** Complete the following fields:
