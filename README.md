@@ -66,11 +66,11 @@
    <img src="./img/chooselogicapp.png" alt="" height="350" style="margin: 0 0 0 0; " />
 
 3. **IMPORTANT: Run the Logic App manually to build the supporting resources:** Navigate to your Logic App and choose Run Trigger, Manual. Running the Logic App manually kicks off a special workflow that does the following:
-   * Creates an Alert Group called '**ANF_LogicAppTrigger**\[_*monitor_rg]*', this alert group is called when any of the four below alerts are triggered. The alert group calls the logic app when a new volume or capacity pool is created, modified, or deleted.
-   * Creates a Metric Alert rule called '**ANF_VolumeModified**\[_*monitor_rg]*' to trigger the Logic App whenever a volume is created or modified.
-   * Creates an Alert called '**ANF_PoolModified**\[_*monitor_rg]*' to trigger the Logic App whenever a capacity pool is created or modified.
-   * Creates an Alert called '**ANF_VolumeDeleted**\[_*monitor_rg]*' to trigger the Logic App whenever a volume is deleted.
-   * Creates an Alert called '**ANF_PoolDeleted**\[_*monitor_rg]*' to trigger the Logic App whenever a pool is deleted.
+   * Creates an Action Group called '**ANF_LogicAppTrigger**\[_*monitor_rg]*', this action group is called when any of the four below alerts are triggered. The action group calls the logic app when a new volume or capacity pool is created, modified, or deleted.
+   * Creates an Activity Log Alert rule called '**ANF_VolumeModified**\[_*monitor_rg]*' to trigger the Logic App whenever a volume is created or modified.
+   * Creates an Activity Log Alert called '**ANF_PoolModified**\[_*monitor_rg]*' to trigger the Logic App whenever a capacity pool is created or modified.
+   * Creates an Activity Log Alert called '**ANF_VolumeDeleted**\[_*monitor_rg]*' to trigger the Logic App whenever a volume is deleted.
+   * Creates an Activity Log Alert called '**ANF_PoolDeleted**\[_*monitor_rg]*' to trigger the Logic App whenever a pool is deleted.
    * **NEW! Creates capacity based Metric Alert rules for existing volumes and capacity pools.**
   
 Once ANFCapacityManager is installed successfully you should experience the following behavior: When an Azure NetApp Files Capacity Pool or Volume is created, modified, or deleted, the Logic App will automatically create (or modify, or delete) a capacity based Metric Alert rule with the name '**ANF\_Pool\_*accountname*\_*poolname***' or '**ANF\_Vol\_*accountname*\_*poolname*\_*volname***'. In addition, if you provided a value greater than 0 (zero) for the '**AutoGrow Percent Increase**' field, the Logic App will automatically increase the volume capacity by the percent specified if a volume reaches the consumed threshold.'
