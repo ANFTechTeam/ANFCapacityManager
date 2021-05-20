@@ -4592,7 +4592,7 @@
                                                                                         "body": {
                                                                                             "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "location": "global",
-                                                                                            "name": "ANF_Pool__@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
+                                                                                            "name": "ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "properties": {
                                                                                                 "actions": [
                                                                                                     {
