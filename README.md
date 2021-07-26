@@ -8,6 +8,7 @@
 
 ## Change Log
 
+* July 26, 2021  - Auto Grow amount now accepts percent-based values (20%) or static values with 't' for 'g'. i.e. '500g' to grow by 500 GiB or '2t' to grow by 2 TiB.
 * April 16, 2021 - Added NetApp Account name to Metric Rules names to guarantee resource name uniqueness.
 * April 12, 2021 - Added logic to check if pool resize is complete before attempting to resize volume. Changed 'put' methods to 'patch' to avoid wiping out tags and snapshot policies.
 * March 14, 2021 - CRR Source Volumes; added logic to autogrow function to increase CRR target capacity pool if required. Logic App will need contributor access to target volume's resource group.
@@ -53,7 +54,7 @@
    * **Volume % Full Threshold** - This determines the consumed threshold that triggers an alert for volumes. A value of 80 would cause an alert to be triggered when the volume reaches 80% consumed.
    * **Existing Action Group's Resource Group** - this is the resource group that contains your **_existing_** Action Group.
    * **Existing Action Group for Capacity Notifications** - this is the action group that will be triggered for capacity based alerting. This should be pre-created by you. This action group could send email/sms, or anything else you would like.
-   * **AutoGrow Percent Increase** - Percent (of the existing volume size) to automatically grow a volume if it reaches the % Full Threshold specified above. A value of 0 (zero) will disable the AutoGrow feature. A value between 10 and 100 is recommended.
+   * **Auto Grow Amount** - Percent of the existing volume size or GiB (g) or TiB (t) to automatically grow a volume if it reaches the % Full Threshold specified above. A value of 0 (zero) will disable the AutoGrow feature. To specify 
 
 2. **Give your new Logic App permissions to read, create, and modify resources within your environment:** Navigate to Resource groups, choose the resource group that you specified for 'Target Resource Group for Alerts'. Choose 'Access control (IAM)' from the menu. Click the '+ Add' button and choose 'Add role assignment'. For the 'Role', choose Contributor. For 'Assign access to', choose Logic App, now select 'ANFCapacityManager' (or the name you specified in step 1). Finally, click the 'Save' button. **Repeat as needed to give the Logic App the required access:**
    * **Resource Group containing ANFCapacityManager**: 'Contributor'

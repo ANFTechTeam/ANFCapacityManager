@@ -58,11 +58,11 @@
                 "description": "The name of your existing Action Group. This Action Group will be triggered when a Capacity Pool or Volume reaches the specified percent full threshold."
             }
         },
-        "AutoGrow Percent Increase": {
-            "defaultValue": "20",
+        "Auto Grow Amount": {
+            "defaultValue": "20%",
             "type": "String",
             "metadata": {
-                "description": "This is the percent (of the existing volume size) to automatically grow a volume if it reaches the percent full threshold specified above. A value of 0 (zero) will disable the AutoGrow functionality. To enable, a value between 10 and 100 is required."
+                "description": "Specify in [g]ibibytes, [t]ebibytes, or percent) i.e. 500g, 10t, 25%. A value of 0 (zero) will disable the Auto Grow functionality."
             }
         }
     },
@@ -228,26 +228,9 @@
                                 ]
                             }
                         },
-                        "Change_Volume_AutoGrow_String_to_Float_and_Divide_by_100": {
-                            "runAfter": {
-                                "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VolumeAutoGrowPercent",
-                                        "type": "float",
-                                        "value": "@div(float(variables('VolumeAutoGrowInput')),100)"
-                                    }
-                                ]
-                            }
-                        },
                         "Change_Volume_String_to_Float_and_Divide_by_100": {
                             "runAfter": {
-                                "Set_Volume_AutoGrow_Percent": [
+                                "Set_Volume_AutoGrow_Value": [
                                     "Succeeded"
                                 ]
                             },
@@ -467,6 +450,38 @@
                                 ]
                             }
                         },
+                        "Initialize_Volume_AutoGrow_GiB": {
+                            "runAfter": {
+                                "Initialize_Volume_AutoGrow_Percent": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAutoGrowGiB",
+                                        "type": "integer"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Volume_AutoGrow_Percent": {
+                            "runAfter": {
+                                "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAutoGrowPercent",
+                                        "type": "integer"
+                                    }
+                                ]
+                            }
+                        },
                         "Parse_Workflow_Properties": {
                             "runAfter": {
                                 "Get_Workflow_Properties": [
@@ -592,7 +607,7 @@
                         },
                         "Set_Target_Resource_Group_to_Monitor": {
                             "runAfter": {
-                                "Change_Volume_AutoGrow_String_to_Float_and_Divide_by_100": [
+                                "Initialize_Volume_AutoGrow_GiB": [
                                     "Succeeded"
                                 ]
                             },
@@ -624,7 +639,7 @@
                                 ]
                             }
                         },
-                        "Set_Volume_AutoGrow_Percent": {
+                        "Set_Volume_AutoGrow_Value": {
                             "runAfter": {
                                 "Set_Volume_Alert_Percentage_(consumed)": [
                                     "Succeeded"
@@ -636,7 +651,7 @@
                                     {
                                         "name": "VolumeAutoGrowInput",
                                         "type": "string",
-                                        "value": "[parameters('AutoGrow Percent Increase')]"
+                                        "value": "[parameters('Auto Grow Amount')]"
                                     }
                                 ]
                             }
@@ -2051,17 +2066,60 @@
                                                                                 "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
                                                                             }
                                                                         },
-                                                                        "Set_ANF_Volume_New_Size_Float_Bytes": {
+                                                                        "Switch": {
                                                                             "runAfter": {},
-                                                                            "type": "SetVariable",
+                                                                            "cases": {
+                                                                                "Grow_by_GiB": {
+                                                                                    "case": "g",
+                                                                                    "actions": {
+                                                                                        "Set_Volume_New_Size_Bytes_(g)": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeBytes",
+                                                                                                "value": "@add(mul(int(split(variables('VolumeAutoGrowInput'),'g')[0]),1073741824),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Volume_New_Size_Gibibytes_(g)": {
+                                                                                            "runAfter": {
+                                                                                                "Set_Volume_New_Size_Bytes_(g)": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeGibibytes",
+                                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Grow_by_Percent": {
+                                                                                    "case": "%",
+                                                                                    "actions": {
+                                                                                        "Set_Volume_AutoGrow_Percent": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "VolumeAutoGrowPercent",
+                                                                                                "value": "@div(int(split(toLower(variables('VolumeAutoGrowInput')),'%')[0]),100)"
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Volume_New_Size_Bytes_(percent)": {
+                                                                                            "runAfter": {
+                                                                                                "Set_Volume_AutoGrow_Percent": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
                                                                             "inputs": {
                                                                                 "name": "AutoGrowNewSizeBytes",
                                                                                 "value": "@add(mul(body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'],variables('VolumeAutoGrowPercent')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
                                                                             }
                                                                         },
-                                                                        "Set_ANF_Volume_New_Size_Float_Gibibytes": {
+                                                                        "Set_Volume_New_Size_Gibibytes_(percent)": {
                                                                             "runAfter": {
-                                                                                "Set_ANF_Volume_New_Size_Float_Bytes": [
+                                                                                "Set_Volume_New_Size_Bytes_(percent)": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -2070,6 +2128,40 @@
                                                                                 "name": "AutoGrowNewSizeGibibytes",
                                                                                 "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
                                                                             }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "Grow_by_TiB": {
+                                                                    "case": "t",
+                                                                    "actions": {
+                                                                        "Set_Volume_New_Size_Bytes_(t)": {
+                                                                            "runAfter": {},
+                                                                            "type": "SetVariable",
+                                                                            "inputs": {
+                                                                                "name": "AutoGrowNewSizeBytes",
+                                                                                "value": "@add(mul(int(split(variables('VolumeAutoGrowInput'),'t')[0]),1099511627776),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
+                                                                            }
+                                                                        },
+                                                                        "Set_Volume_New_Size_Gibibytes_(t)": {
+                                                                            "runAfter": {
+                                                                                "Set_Volume_New_Size_Bytes_(t)": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "type": "SetVariable",
+                                                                            "inputs": {
+                                                                                "name": "AutoGrowNewSizeGibibytes",
+                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "default": {
+                                                                "actions": {}
+                                                            },
+                                                            "expression": "@last(toLower(variables('VolumeAutoGrowInput')))",
+                                                            "type": "Switch"
                                                                         },
                                                                         "Test_if_Gibibytes_is_not_a_whole_number": {
                                                                             "actions": {
@@ -2083,7 +2175,7 @@
                                                                                 }
                                                                             },
                                                                             "runAfter": {
-                                                                                "Set_ANF_Volume_New_Size_Float_Gibibytes": [
+                                                                                "Switch": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -4592,7 +4684,7 @@
                                                                                         "body": {
                                                                                             "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "location": "global",
-                                                                                            "name": "ANF_Pool__@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
+                                                                                            "name": "ANF_Pool_@{first(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}_@{last(split(body('Parse_Individual_Pool_in_Sub')?['name'],'/'))}",
                                                                                             "properties": {
                                                                                                 "actions": [
                                                                                                     {
@@ -4700,7 +4792,7 @@
                                                                                                             "type": "Microsoft.Insights/metricAlerts"
                                                                                                         },
                                                                                                         "method": "PUT",
-                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol__@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
                                                                                                     }
                                                                                                 }
                                                                                             },
