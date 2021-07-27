@@ -1359,9 +1359,9 @@
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "body": {
-                                                                                            "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_Warning",
+                                                                                            "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w",
                                                                                             "location": "global",
-                                                                                            "name": "ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_Warning",
+                                                                                            "name": "ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w",
                                                                                             "properties": {
                                                                                                 "actions": [
                                                                                                     {
@@ -1402,7 +1402,7 @@
                                                                                             "type": "Microsoft.Insights/metricAlerts"
                                                                                         },
                                                                                         "method": "PUT",
-                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_Warning?api-version=2018-03-01"
+                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w?api-version=2018-03-01"
                                                                                     }
                                                                                 }
                                                                             },
@@ -1465,7 +1465,7 @@
                                                                                                 "type": "ManagedServiceIdentity"
                                                                                             },
                                                                                             "method": "DELETE",
-                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[8]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[12]}_Warning?api-version=2018-03-01"
+                                                                                            "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[8]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[12]}_w?api-version=2018-03-01"
                                                                                         }
                                                                                     }
                                                                                 },
@@ -4024,9 +4024,9 @@
                                                                                                         "type": "ManagedServiceIdentity"
                                                                                                     },
                                                                                                     "body": {
-                                                                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_Warning",
+                                                                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w",
                                                                                                         "location": "global",
-                                                                                                        "name": "ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_Warning",
+                                                                                                        "name": "ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w",
                                                                                                         "properties": {
                                                                                                             "actions": [
                                                                                                                 {
@@ -4067,7 +4067,7 @@
                                                                                                         "type": "Microsoft.Insights/metricAlerts"
                                                                                                     },
                                                                                                     "method": "PUT",
-                                                                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_Warning?api-version=2018-03-01"
+                                                                                                    "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w?api-version=2018-03-01"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -5238,9 +5238,9 @@
                                                                                                     "type": "Http",
                                                                                                     "inputs": {
                                                                                                         "body": {
-                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_Warning",
+                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w",
                                                                                                             "location": "global",
-                                                                                                            "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_Warning",
+                                                                                                            "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w",
                                                                                                             "properties": {
                                                                                                                 "actions": [
                                                                                                                     {
@@ -5281,7 +5281,7 @@
                                                                                                             "type": "Microsoft.Insights/metricAlerts"
                                                                                                         },
                                                                                                         "method": "PUT",
-                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_Warning?api-version=2018-03-01"
+                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w?api-version=2018-03-01"
                                                                                                     }
                                                                                                 }
                                                                                             },
