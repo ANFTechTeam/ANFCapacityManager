@@ -8,6 +8,7 @@
 
 ## Change Log
 
+* July 27, 2021  - Added separate alert for Volume full warning only. Use this value to notify your team without automatically growing the volume.
 * July 26, 2021  - Auto Grow amount now accepts percent-based values (20%) or static values with 't' for 'g'. i.e. '500g' to grow by 500 GiB or '2t' to grow by 2 TiB.
 * April 16, 2021 - Added NetApp Account name to metric rule names to guarantee resource name uniqueness.
 * April 12, 2021 - Added logic to check if pool resize is complete before attempting to resize volume. Changed 'put' methods to 'patch' to avoid wiping out tags and snapshot policies.
@@ -53,7 +54,8 @@
    * **Target Resource Group for Alerts** - new alerts will be created in this resource group.
    * **Target Resource Group to Monitor** - leave this field blank to monitor your entire subscription.
    * **Capacity Pool % Full Threshold** - This determines the consumed threshold that triggers an alert for capacity pools. A value of 90 would cause an alert to be triggered when the capacity pool reaches 90% consumed.
-   * **Volume % Full Threshold** - This determines the consumed threshold that triggers an alert for volumes. A value of 80 would cause an alert to be triggered when the volume reaches 80% consumed.
+   * **Volume Percent Grow Threshold** - This determines the consumed threshold that triggers an alert for volumes and triggers auto grow. A value of 80 would cause an alert to be triggered when the volume reaches 80% consumed.
+   * **Volume Percent Warn Threshold** - This determines the consumed threshold that triggers an alert for volumes. A value of 70 would cause an alert to be triggered when the volume reaches 70% consumed.
    * **Existing Action Group's Resource Group** - this is the resource group that contains your **_existing_** Action Group.
    * **Existing Action Group for Capacity Notifications** - this is the action group that will be triggered for capacity based alerting. This should be pre-created by you. This action group could send email/sms, or anything else you would like.
    * **Auto Grow Amount** - Percent of the existing volume size or GiB (g) or TiB (t) to automatically grow a volume if it reaches the % Full Threshold specified above. A value of 0 (zero) will disable the AutoGrow feature. To specify 
