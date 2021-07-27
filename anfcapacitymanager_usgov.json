@@ -37,11 +37,18 @@
                 "description": "This is the percent consumed threshold that will trigger an alert for all Azure NetApp Files Capacity Pools. A whole number between 1 and 100 is required."
             }
         },
-        "Volume Percent Full Threshold": {
+        "Volume Percent Grow Threshold": {
             "defaultValue": "80",
             "type": "String",
             "metadata": {
-                "description": "This is the percent consumed threshold that will trigger an alert for all Azure NetApp Files Volumes. A whole number between 1 and 100 is required."
+                "description": "This is the percent consumed threshold that will trigger an alert and auto grow for all Azure NetApp Files Volumes. A whole number between 1 and 100 is required."
+            }
+        },
+        "Volume Percent Warn Threshold": {
+            "defaultValue": "70",
+            "type": "String",
+            "metadata": {
+                "description": "This is the percent consumed threshold that will trigger an alert only for all Azure NetApp Files Volumes. A whole number between 1 and 100 is required."
             }
         },
         "Existing Action Group Resource Group": {
@@ -62,7 +69,7 @@
             "defaultValue": "20%",
             "type": "String",
             "metadata": {
-                "description": "Specify in [g]ibibytes, [t]ebibytes, or percent) i.e. 500g, 10t, 25%. A value of 0 (zero) will disable the Auto Grow functionality."
+                "description": "Specify in [g]ibibytes, [t]ebibytes, or [%]percent) i.e. 500g, 10t, 25%. A value of 0 (zero) will disable the Auto Grow functionality."
             }
         }
     },
@@ -81,7 +88,7 @@
             "properties": {
                 "state": "Enabled",
                 "definition": {
-                    "$schema": "https://schema.management.usgovcloudapi.net/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {},
                     "triggers": {
@@ -213,7 +220,7 @@
                     "actions": {
                         "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": {
                             "runAfter": {
-                                "Change_Volume_String_to_Float_and_Divide_by_100": [
+                                "Initialize_variable": [
                                     "Succeeded"
                                 ]
                             },
@@ -482,6 +489,23 @@
                                 ]
                             }
                         },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "Change_Volume_String_to_Float_and_Divide_by_100": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAlertPercentWarning",
+                                        "type": "float",
+                                        "value": "@div(float(variables('VolumeAlertInputWarning')),100)"
+                                    }
+                                ]
+                            }
+                        },
                         "Parse_Workflow_Properties": {
                             "runAfter": {
                                 "Get_Workflow_Properties": [
@@ -634,14 +658,31 @@
                                     {
                                         "name": "VolumeAlertInput",
                                         "type": "string",
-                                        "value": "[parameters('Volume Percent Full Threshold')]"
+                                        "value": "[parameters('Volume Percent Grow Threshold')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Set_Volume_Alert_Warning_Percentage_(consumed)": {
+                            "runAfter": {
+                                "Set_Volume_Alert_Percentage_(consumed)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAlertInputWarning",
+                                        "type": "string",
+                                        "value": "[parameters('Volume Percent Warn Threshold')]"
                                     }
                                 ]
                             }
                         },
                         "Set_Volume_AutoGrow_Value": {
                             "runAfter": {
-                                "Set_Volume_Alert_Percentage_(consumed)": [
+                                "Set_Volume_Alert_Warning_Percentage_(consumed)": [
                                     "Succeeded"
                                 ]
                             },
@@ -980,7 +1021,7 @@
                                                                     "actions": {
                                                                         "Create_or_Modify_Volume_Alert": {
                                                                             "runAfter": {
-                                                                                "Parse_Volume_JSON": [
+                                                                                "Test_for_Alert_Percent_Warning_Tag": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -1045,7 +1086,7 @@
                                                                         },
                                                                         "Created_Volume_Alert": {
                                                                             "runAfter": {
-                                                                                "Create_or_Modify_Volume_Alert": [
+                                                                                "Test_if_Warning_Percent_Greater_than_Zero": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -1062,7 +1103,7 @@
                                                                                     "type": "ManagedServiceIdentity"
                                                                                 },
                                                                                 "method": "GET",
-                                                                                "uri": " https://management.usgovcloudapi.net@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}?api-version=2017-08-15"
+                                                                                "uri": " https://management.usgovcloudapi.net@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}?api-version=2020-12-01"
                                                                             }
                                                                         },
                                                                         "Parse_Volume_JSON": {
@@ -1096,6 +1137,9 @@
                                                                                                 "creationToken": {
                                                                                                     "type": "string"
                                                                                                 },
+                                                                                                "encryptionKeySource": {
+                                                                                                    "type": "string"
+                                                                                                },
                                                                                                 "exportPolicy": {
                                                                                                     "properties": {
                                                                                                         "rules": {
@@ -1107,10 +1151,28 @@
                                                                                                                     "cifs": {
                                                                                                                         "type": "boolean"
                                                                                                                     },
-                                                                                                                    "nfsv3": {
+                                                                                                                    "hasRootAccess": {
                                                                                                                         "type": "boolean"
                                                                                                                     },
-                                                                                                                    "nfsv4": {
+                                                                                                                    "kerberos5ReadOnly": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "kerberos5ReadWrite": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "kerberos5iReadOnly": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "kerberos5iReadWrite": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "kerberos5pReadOnly": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "kerberos5pReadWrite": {
+                                                                                                                        "type": "boolean"
+                                                                                                                    },
+                                                                                                                    "nfsv3": {
                                                                                                                         "type": "boolean"
                                                                                                                     },
                                                                                                                     "nfsv41": {
@@ -1137,16 +1199,16 @@
                                                                                                 "fileSystemId": {
                                                                                                     "type": "string"
                                                                                                 },
+                                                                                                "kerberosEnabled": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "ldapEnabled": {
+                                                                                                    "type": "boolean"
+                                                                                                },
                                                                                                 "mountTargets": {
                                                                                                     "items": {
                                                                                                         "properties": {
-                                                                                                            "endIp": {
-                                                                                                                "type": "string"
-                                                                                                            },
                                                                                                             "fileSystemId": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "gateway": {
                                                                                                                 "type": "string"
                                                                                                             },
                                                                                                             "ipAddress": {
@@ -1155,29 +1217,19 @@
                                                                                                             "mountTargetId": {
                                                                                                                 "type": "string"
                                                                                                             },
-                                                                                                            "netmask": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "provisioningState": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "startIp": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "subnet": {
+                                                                                                            "smbServerFQDN": {
                                                                                                                 "type": "string"
                                                                                                             }
                                                                                                         },
-                                                                                                        "required": [],
+                                                                                                        "required": [
+                                                                                                            "mountTargetId",
+                                                                                                            "fileSystemId",
+                                                                                                            "ipAddress",
+                                                                                                            "smbServerFQDN"
+                                                                                                        ],
                                                                                                         "type": "object"
                                                                                                     },
                                                                                                     "type": "array"
-                                                                                                },
-                                                                                                "name": {
-                                                                                                    "type": "string"
-                                                                                                },
-                                                                                                "ownerId": {
-                                                                                                    "type": "string"
                                                                                                 },
                                                                                                 "protocolTypes": {
                                                                                                     "items": {
@@ -1188,23 +1240,45 @@
                                                                                                 "provisioningState": {
                                                                                                     "type": "string"
                                                                                                 },
+                                                                                                "securityStyle": {
+                                                                                                    "type": "string"
+                                                                                                },
                                                                                                 "serviceLevel": {
                                                                                                     "type": "string"
+                                                                                                },
+                                                                                                "smbContinuouslyAvailable": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "smbEncryption": {
+                                                                                                    "type": "boolean"
+                                                                                                },
+                                                                                                "snapshotDirectoryVisible": {
+                                                                                                    "type": "boolean"
                                                                                                 },
                                                                                                 "subnetId": {
                                                                                                     "type": "string"
                                                                                                 },
-                                                                                                "usageThreshold": {
-                                                                                                    "type": "integer"
+                                                                                                "throughputMibps": {
+                                                                                                    "type": "number"
                                                                                                 },
-                                                                                                "usedBytes": {
+                                                                                                "usageThreshold": {
                                                                                                     "type": "integer"
                                                                                                 }
                                                                                             },
                                                                                             "type": "object"
                                                                                         },
                                                                                         "tags": {
-                                                                                            "properties": {},
+                                                                                            "properties": {
+                                                                                                "anfcapacitymanager_grow_value": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "anfcapacitymanager_threshold_grow": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "anfcapacitymanager_threshold_warn": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            },
                                                                                             "type": "object"
                                                                                         },
                                                                                         "type": {
@@ -1214,6 +1288,142 @@
                                                                                     "type": "object"
                                                                                 }
                                                                             }
+                                                                        },
+                                                                        "Test_for_Alert_Percent_Tag": {
+                                                                            "actions": {
+                                                                                "Set_Volume_Alert_Percent_from_Tag": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "VolumeAlertInput",
+                                                                                        "value": "@body('Parse_Volume_JSON')?['tags']?['anfcapacitymanager_threshold_grow']"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "runAfter": {
+                                                                                "Parse_Volume_JSON": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "not": {
+                                                                                            "equals": [
+                                                                                                "@body('Parse_Volume_JSON')?['tags']?['anfcapacitymanager_threshold_grow']",
+                                                                                                "@null"
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        },
+                                                                        "Test_for_Alert_Percent_Warning_Tag": {
+                                                                            "actions": {
+                                                                                "Set_Volume_Alert_Warning_from_Tag": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "VolumeAlertInputWarning",
+                                                                                        "value": "@body('Parse_Volume_JSON')?['tags']?['anfcapacitymanager_threshold_warn']"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "runAfter": {
+                                                                                "Test_for_Alert_Percent_Tag": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "not": {
+                                                                                            "equals": [
+                                                                                                "@body('Parse_Volume_JSON')?['tags']?['anfcapacitymanager_threshold_warn']",
+                                                                                                "@null"
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        },
+                                                                        "Test_if_Warning_Percent_Greater_than_Zero": {
+                                                                            "actions": {
+                                                                                "Create_or_Modify_Volume_Alert_Warning": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "Http",
+                                                                                    "inputs": {
+                                                                                        "authentication": {
+                                                                                            "type": "ManagedServiceIdentity"
+                                                                                        },
+                                                                                        "body": {
+                                                                                            "id": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w",
+                                                                                            "location": "global",
+                                                                                            "name": "ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w",
+                                                                                            "properties": {
+                                                                                                "actions": [
+                                                                                                    {
+                                                                                                        "actionGroupId": "/subscriptions/@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[2]}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                                                        "webHookProperties": {}
+                                                                                                    }
+                                                                                                ],
+                                                                                                "autoMitigate": true,
+                                                                                                "criteria": {
+                                                                                                    "allOf": [
+                                                                                                        {
+                                                                                                            "criterionType": "StaticThresholdCriterion",
+                                                                                                            "dimensions": [],
+                                                                                                            "metricName": "VolumeConsumedSizePercentage",
+                                                                                                            "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                            "monitorTemplateType": 8,
+                                                                                                            "name": "Metric1",
+                                                                                                            "operator": "GreaterThan",
+                                                                                                            "threshold": "@variables('VolumeAlertInputWarning')",
+                                                                                                            "timeAggregation": "Average"
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                                                                },
+                                                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                "enabled": true,
+                                                                                                "evaluationFrequency": "PT1M",
+                                                                                                "scopes": [
+                                                                                                    "@{triggerBody()?['data']?['alertContext']?['authorization']?['scope']}"
+                                                                                                ],
+                                                                                                "severity": 3,
+                                                                                                "targetResourceRegion": "@{body('Parse_Volume_JSON')?['location']}",
+                                                                                                "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                "templateType": 8,
+                                                                                                "windowSize": "PT5M"
+                                                                                            },
+                                                                                            "tags": {},
+                                                                                            "type": "Microsoft.Insights/metricAlerts"
+                                                                                        },
+                                                                                        "method": "PUT",
+                                                                                        "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Volume_JSON')?['name'],'/')[0]}_@{split(body('Parse_Volume_JSON')?['name'],'/')[1]}_@{last(split(body('Parse_Volume_JSON')?['name'],'/'))}_w?api-version=2018-03-01"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "runAfter": {
+                                                                                "Create_or_Modify_Volume_Alert": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "not": {
+                                                                                            "equals": [
+                                                                                                "@variables('VolumeAlertInputWarning')",
+                                                                                                "0"
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
                                                                         }
                                                                     },
                                                                     "runAfter": {},
@@ -1234,13 +1444,28 @@
                                                                                     },
                                                                                     "Deleted_Volume_Alert": {
                                                                                         "runAfter": {
-                                                                                            "Delete_Volume_Alert": [
+                                                                                            "HTTP": [
                                                                                                 "Succeeded"
                                                                                             ]
                                                                                         },
                                                                                         "type": "Terminate",
                                                                                         "inputs": {
                                                                                             "runStatus": "Succeeded"
+                                                                                        }
+                                                                                    },
+                                                                                    "HTTP": {
+                                                                                        "runAfter": {
+                                                                                            "Delete_Volume_Alert": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "Http",
+                                                                                        "inputs": {
+                                                                                            "authentication": {
+                                                                                                "type": "ManagedServiceIdentity"
+                                                                                            },
+                                                                                            "method": "DELETE",
+                                                                                            "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[8]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[10]}_@{split(triggerBody()?['data']?['alertContext']?['authorization']?['scope'],'/')[12]}_w?api-version=2018-03-01"
                                                                                         }
                                                                                     }
                                                                                 },
@@ -1412,6 +1637,36 @@
                                                         "For_each_": {
                                                             "foreach": "@body('Parse_body_of_Alert_JSON')?['data']?['essentials']?['alertTargetIDs']",
                                                             "actions": {
+                                                                "Does_Volume_have_Custom_Auto_Grow_Tag": {
+                                                                    "actions": {
+                                                                        "Set_VolumeAutoGrowInput": {
+                                                                            "runAfter": {},
+                                                                            "type": "SetVariable",
+                                                                            "inputs": {
+                                                                                "name": "VolumeAutoGrowInput",
+                                                                                "value": "@body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow']"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Parse_Details_of_the_Resource": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "expression": {
+                                                                        "and": [
+                                                                            {
+                                                                                "not": {
+                                                                                    "equals": [
+                                                                                        "@body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow_value']",
+                                                                                        "@null"
+                                                                                    ]
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "type": "If"
+                                                                },
                                                                 "Get_Details_of_the_Resource": {
                                                                     "runAfter": {
                                                                         "Set_Scope": [
@@ -1460,32 +1715,9 @@
                                                                                         },
                                                                                         "dataProtection": {
                                                                                             "properties": {
-                                                                                                "backup": {
+                                                                                                "snapshot": {
                                                                                                     "properties": {
-                                                                                                        "backupEnabled": {
-                                                                                                            "type": "boolean"
-                                                                                                        },
-                                                                                                        "backupPolicyId": {
-                                                                                                            "type": "string"
-                                                                                                        },
-                                                                                                        "policyEnforced": {
-                                                                                                            "type": "boolean"
-                                                                                                        },
-                                                                                                        "vaultId": {
-                                                                                                            "type": "string"
-                                                                                                        }
-                                                                                                    },
-                                                                                                    "type": "object"
-                                                                                                },
-                                                                                                "replication": {
-                                                                                                    "properties": {
-                                                                                                        "endPointType": {
-                                                                                                            "type": "string"
-                                                                                                        },
-                                                                                                        "remoteVolumeRegion": {
-                                                                                                            "type": "string"
-                                                                                                        },
-                                                                                                        "remoteVolumeResourceId": {
+                                                                                                        "snapshotPolicyId": {
                                                                                                             "type": "string"
                                                                                                         }
                                                                                                     },
@@ -1493,6 +1725,9 @@
                                                                                                 }
                                                                                             },
                                                                                             "type": "object"
+                                                                                        },
+                                                                                        "encryptionKeySource": {
+                                                                                            "type": "string"
                                                                                         },
                                                                                         "exportPolicy": {
                                                                                             "properties": {
@@ -1556,16 +1791,13 @@
                                                                                         "kerberosEnabled": {
                                                                                             "type": "boolean"
                                                                                         },
+                                                                                        "ldapEnabled": {
+                                                                                            "type": "boolean"
+                                                                                        },
                                                                                         "mountTargets": {
                                                                                             "items": {
                                                                                                 "properties": {
-                                                                                                    "endIp": {
-                                                                                                        "type": "string"
-                                                                                                    },
                                                                                                     "fileSystemId": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "gateway": {
                                                                                                         "type": "string"
                                                                                                     },
                                                                                                     "ipAddress": {
@@ -1574,16 +1806,7 @@
                                                                                                     "mountTargetId": {
                                                                                                         "type": "string"
                                                                                                     },
-                                                                                                    "netmask": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "provisioningState": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "startIp": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "subnet": {
+                                                                                                    "smbServerFQDN": {
                                                                                                         "type": "string"
                                                                                                     }
                                                                                                 },
@@ -1591,9 +1814,6 @@
                                                                                                 "type": "object"
                                                                                             },
                                                                                             "type": "array"
-                                                                                        },
-                                                                                        "name": {
-                                                                                            "type": "string"
                                                                                         },
                                                                                         "protocolTypes": {
                                                                                             "items": {
@@ -1604,26 +1824,45 @@
                                                                                         "provisioningState": {
                                                                                             "type": "string"
                                                                                         },
+                                                                                        "securityStyle": {
+                                                                                            "type": "string"
+                                                                                        },
                                                                                         "serviceLevel": {
                                                                                             "type": "string"
                                                                                         },
+                                                                                        "smbContinuouslyAvailable": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "smbEncryption": {
+                                                                                            "type": "boolean"
+                                                                                        },     
                                                                                         "snapshotDirectoryVisible": {
                                                                                             "type": "boolean"
                                                                                         },
                                                                                         "subnetId": {
                                                                                             "type": "string"
                                                                                         },
+                                                                                        "throughputMibps": {
+                                                                                            "type": "number"
+                                                                                        },
                                                                                         "usageThreshold": {
                                                                                             "type": "integer"
                                                                                         },
-                                                                                        "usedBytes": {
-                                                                                            "type": "integer"
+                                                                                        "volumeType": {
+                                                                                            "type": "string"
                                                                                         }
                                                                                     },
                                                                                     "type": "object"
                                                                                 },
                                                                                 "tags": {
-                                                                                    "properties": {},
+                                                                                    "properties": {
+                                                                                        "anfcapacitymanager_autogrow_value": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "creator": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
                                                                                     "type": "object"
                                                                                 },
                                                                                 "type": {
@@ -2956,7 +3195,7 @@
                                                                     }
                                                                 },
                                                                 "runAfter": {
-                                                                    "Parse_Details_of_the_Resource": [
+                                                                    "Does_Volume_have_Custom_Auto_Grow_Tag": [
                                                                         "Succeeded"
                                                                     ]
                                                                 },
@@ -3774,6 +4013,82 @@
                                                                                             "method": "PUT",
                                                                                             "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}?api-version=2018-03-01"
                                                                                         }
+                                                                                    },
+                                                                                    "Test_if_Volume_Warning_Percent": {
+                                                                                        "actions": {
+                                                                                            "Create_Alert_Rule_for_Volume_Warning": {
+                                                                                                "runAfter": {},
+                                                                                                "type": "Http",
+                                                                                                "inputs": {
+                                                                                                    "authentication": {
+                                                                                                        "type": "ManagedServiceIdentity"
+                                                                                                    },
+                                                                                                    "body": {
+                                                                                                        "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w",
+                                                                                                        "location": "global",
+                                                                                                        "name": "ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w",
+                                                                                                        "properties": {
+                                                                                                            "actions": [
+                                                                                                                {
+                                                                                                                    "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                                                                    "webHookProperties": {}
+                                                                                                                }
+                                                                                                            ],
+                                                                                                            "autoMitigate": true,
+                                                                                                            "criteria": {
+                                                                                                                "allOf": [
+                                                                                                                    {
+                                                                                                                        "criterionType": "StaticThresholdCriterion",
+                                                                                                                        "dimensions": [],
+                                                                                                                        "metricName": "VolumeConsumedSizePercentage",
+                                                                                                                        "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                                        "monitorTemplateType": 8,
+                                                                                                                        "name": "Metric1",
+                                                                                                                        "operator": "GreaterThan",
+                                                                                                                        "threshold": "@variables('VolumeAlertInputWarning')",
+                                                                                                                        "timeAggregation": "Average"
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                                                                            },
+                                                                                                            "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                            "enabled": true,
+                                                                                                            "evaluationFrequency": "PT1M",
+                                                                                                            "scopes": [
+                                                                                                                "@{body('Parse_Single_Volume')?['id']}"
+                                                                                                            ],
+                                                                                                            "severity": 3,
+                                                                                                            "targetResourceRegion": "@{body('Parse_Single_Volume')?['location']}",
+                                                                                                            "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                            "templateType": 8,
+                                                                                                            "windowSize": "PT5M"
+                                                                                                        },
+                                                                                                        "tags": {},
+                                                                                                        "type": "Microsoft.Insights/metricAlerts"
+                                                                                                    },
+                                                                                                    "method": "PUT",
+                                                                                                    "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_Single_Volume')?['name'],'/')[0]}_@{split(body('Parse_Single_Volume')?['name'],'/')[1]}_@{last(split(body('Parse_Single_Volume')?['name'],'/'))}_w?api-version=2018-03-01"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "runAfter": {
+                                                                                            "Create_Alert_Rule_for_Volume": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "expression": {
+                                                                                            "and": [
+                                                                                                {
+                                                                                                    "not": {
+                                                                                                        "equals": [
+                                                                                                            "@variables('VolumeAlertInputWarning')",
+                                                                                                            "0"
+                                                                                                        ]
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "If"
                                                                                     }
                                                                                 },
                                                                                 "runAfter": {
@@ -4735,10 +5050,12 @@
                                                                                 "For_each_Volume_in_Sub": {
                                                                                     "foreach": "@body('Parse_All_Volumes_in_Sub')?['value']",
                                                                                     "actions": {
-                                                                                        "Condition": {
-                                                                                            "actions": {
                                                                                                 "Create_Alert_Rule_for_Volume_(Sub)": {
-                                                                                                    "runAfter": {},
+                                                                                                    "runAfter": {
+                                                                                                        "Parse_each_Volume_in_Sub": [
+                                                                                                            "Succeeded"
+                                                                                                        ]
+                                                                                                    },
                                                                                                     "type": "Http",
                                                                                                     "inputs": {
                                                                                                         "authentication": {
@@ -4794,26 +5111,6 @@
                                                                                                         "method": "PUT",
                                                                                                         "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
                                                                                                     }
-                                                                                                }
-                                                                                            },
-                                                                                            "runAfter": {
-                                                                                                "Parse_each_Volume_in_Sub": [
-                                                                                                    "Succeeded"
-                                                                                                ]
-                                                                                            },
-                                                                                            "expression": {
-                                                                                                "and": [
-                                                                                                    {
-                                                                                                        "not": {
-                                                                                                            "equals": [
-                                                                                                                "@body('Parse_each_Volume_in_Sub')?['properties']?['provisioningState']",
-                                                                                                                "Failed"
-                                                                                                            ]
-                                                                                                        }
-                                                                                                    }
-                                                                                                ]
-                                                                                            },
-                                                                                            "type": "If"
                                                                                         },
                                                                                         "Parse_each_Volume_in_Sub": {
                                                                                             "runAfter": {},
@@ -4933,6 +5230,79 @@
                                                                                                     "type": "object"
                                                                                                 }
                                                                                             }
+                                                                                        },
+                                                                                        "Test_if_Volume_Warning_Percent_(Sub)": {
+                                                                                            "actions": {
+                                                                                                "Create_Alert_Rule_for_Volume_Warning_(Sub)": {
+                                                                                                    "runAfter": {},
+                                                                                                    "type": "Http",
+                                                                                                    "inputs": {
+                                                                                                        "body": {
+                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w",
+                                                                                                            "location": "global",
+                                                                                                            "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w",
+                                                                                                            "properties": {
+                                                                                                                "actions": [
+                                                                                                                    {
+                                                                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                                                                        "webHookProperties": {}
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "autoMitigate": true,
+                                                                                                                "criteria": {
+                                                                                                                    "allOf": [
+                                                                                                                        {
+                                                                                                                            "criterionType": "StaticThresholdCriterion",
+                                                                                                                            "dimensions": [],
+                                                                                                                            "metricName": "VolumeConsumedSizePercentage",
+                                                                                                                            "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                                            "monitorTemplateType": 8,
+                                                                                                                            "name": "Metric1",
+                                                                                                                            "operator": "GreaterThan",
+                                                                                                                            "threshold": "@variables('VolumeAlertPercentWarning')",
+                                                                                                                            "timeAggregation": "Average"
+                                                                                                                        }
+                                                                                                                    ],
+                                                                                                                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                                                                                },
+                                                                                                                "description": "Created by ANFCapacityManager v3.1, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                                "enabled": true,
+                                                                                                                "evaluationFrequency": "PT1M",
+                                                                                                                "scopes": [
+                                                                                                                    "@{body('Parse_each_Volume_in_Sub')?['id']}"
+                                                                                                                ],
+                                                                                                                "severity": 3,
+                                                                                                                "targetResourceRegion": "@{body('Parse_each_Volume_in_Sub')?['location']}",
+                                                                                                                "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                                "templateType": 8,
+                                                                                                                "windowSize": "PT5M"
+                                                                                                            },
+                                                                                                            "tags": {},
+                                                                                                            "type": "Microsoft.Insights/metricAlerts"
+                                                                                                        },
+                                                                                                        "method": "PUT",
+                                                                                                        "uri": "https://management.usgovcloudapi.net/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w?api-version=2018-03-01"
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "runAfter": {
+                                                                                                "Create_Alert_Rule_for_Volume_(Sub)": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "expression": {
+                                                                                                "and": [
+                                                                                                    {
+                                                                                                        "not": {
+                                                                                                            "equals": [
+                                                                                                                "@variables('VolumeAlertInputWarning')",
+                                                                                                                "0"
+                                                                                                            ]
+                                                                                                        }
+                                                                                                    }
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "If"
                                                                                         }
                                                                                     },
                                                                                     "runAfter": {
