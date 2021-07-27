@@ -1417,7 +1417,7 @@
                                                                                         "not": {
                                                                                             "equals": [
                                                                                                 "@variables('VolumeAlertInputWarning')",
-                                                                                                0
+                                                                                                "0"
                                                                                             ]
                                                                                         }
                                                                                     }
@@ -4082,7 +4082,7 @@
                                                                                                     "not": {
                                                                                                         "equals": [
                                                                                                             "@variables('VolumeAlertInputWarning')",
-                                                                                                            0
+                                                                                                            "0"
                                                                                                         ]
                                                                                                     }
                                                                                                 }
@@ -5296,7 +5296,7 @@
                                                                                                         "not": {
                                                                                                             "equals": [
                                                                                                                 "@variables('VolumeAlertInputWarning')",
-                                                                                                                0
+                                                                                                                "0"
                                                                                                             ]
                                                                                                         }
                                                                                                     }
