@@ -8,6 +8,7 @@
 
 ## Change Log
 
+* July 27, 2021  - Increased v3.1 -> v4.0
 * July 27, 2021  - Added separate alert for Volume full warning only. Use this value to notify your team without automatically growing the volume.
 * July 26, 2021  - Auto Grow amount now accepts percent-based values (20%) or static values with 't' for 'g'. i.e. '500g' to grow by 500 GiB or '2t' to grow by 2 TiB.
 * April 16, 2021 - Added NetApp Account name to metric rule names to guarantee resource name uniqueness.
