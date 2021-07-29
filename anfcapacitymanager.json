@@ -5237,6 +5237,9 @@
                                                                                                     "runAfter": {},
                                                                                                     "type": "Http",
                                                                                                     "inputs": {
+                                                                                                        "authentication": {
+                                                                                                            "type": "ManagedServiceIdentity"
+                                                                                                        },
                                                                                                         "body": {
                                                                                                             "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}_w",
                                                                                                             "location": "global",
@@ -5259,7 +5262,7 @@
                                                                                                                             "monitorTemplateType": 8,
                                                                                                                             "name": "Metric1",
                                                                                                                             "operator": "GreaterThan",
-                                                                                                                            "threshold": "@variables('VolumeAlertPercentWarning')",
+                                                                                                                            "threshold": "@variables('VolumeAlertInputWarning')",
                                                                                                                             "timeAggregation": "Average"
                                                                                                                         }
                                                                                                                     ],
