@@ -1221,12 +1221,7 @@
                                                                                                                 "type": "string"
                                                                                                             }
                                                                                                         },
-                                                                                                        "required": [
-                                                                                                            "mountTargetId",
-                                                                                                            "fileSystemId",
-                                                                                                            "ipAddress",
-                                                                                                            "smbServerFQDN"
-                                                                                                        ],
+                                                                                                        "required": [],
                                                                                                         "type": "object"
                                                                                                     },
                                                                                                     "type": "array"
