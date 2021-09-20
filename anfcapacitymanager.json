@@ -2336,7 +2336,7 @@
                                                                                             "type": "SetVariable",
                                                                                             "inputs": {
                                                                                                 "name": "VolumeAutoGrowPercent",
-                                                                                                "value": "@div(int(split(toLower(variables('VolumeAutoGrowInput')),'%')[0]),100)"
+                                                                                                "value": "@int(split(variables('VolumeAutoGrowInput'),'%')[0])"
                                                                                             }
                                                                                         },
                                                                                         "Set_Volume_New_Size_Bytes_(percent)": {
@@ -2348,7 +2348,7 @@
                                                                                             "type": "SetVariable",
                                                                             "inputs": {
                                                                                 "name": "AutoGrowNewSizeBytes",
-                                                                                "value": "@add(mul(body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'],variables('VolumeAutoGrowPercent')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
+                                                                                "value": "@add(mul(body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'],mul(variables('VolumeAutoGrowPercent'), 0.01)),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
                                                                             }
                                                                         },
                                                                         "Set_Volume_New_Size_Gibibytes_(percent)": {
