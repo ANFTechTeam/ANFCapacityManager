@@ -8,7 +8,7 @@
 
 ## Change Log
 
-* Sept 20, 2021  - Fixed bud that required SMBFQDN field that doesn't always exist
+* Sept 20, 2021  - Fixed bug that required SMBFQDN field that doesn't always exist
 * Sept 20, 2021  - Fixed bug that incorrectly calculated the new volume size when using percent based autogrow 
 * July 27, 2021  - Increased v3.1 -> v4.0
 * July 27, 2021  - Added separate alert for Volume full warning only. Use this value to notify your team without automatically growing the volume.
