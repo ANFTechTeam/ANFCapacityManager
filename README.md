@@ -20,7 +20,7 @@
 
 ## Alert Management
 
-* When an Azure NetApp Files Capacity Pool or Volume is created, ANFCapacityManager creates a metric alert rule based on the specified percent consumed threshold.
+* When an Azure NetApp Files Capacity Pool or Volume is created, ANFCapacityManager creates 2 metric alert rules based on the specified percent consumed threshold separately for warning and autogrow. If you do not wish to have a warning email, you can set the threshold to '0'.
 * When an Azure NetApp Files Capacity Pool or Volume is resized, ANFCapacityManager modifies the metric alert rule based on the specified percent capacity consumed threshold. If the alert rule does not exist, it will be created.
 * When an Azure NetApp Files Capacity Pool or Volume is deleted, the corresponding metric alert rule will be deleted.
 
