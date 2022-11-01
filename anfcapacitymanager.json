@@ -218,40 +218,6 @@
                         }
                     },
                     "actions": {
-                        "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": {
-                            "runAfter": {
-                                "Initialize_variable": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "CapacityAlertPercent",
-                                        "type": "float",
-                                        "value": "@div(float(variables('CapacityAlertInput')),100)"
-                                    }
-                                ]
-                            }
-                        },
-                        "Change_Volume_String_to_Float_and_Divide_by_100": {
-                            "runAfter": {
-                                "Set_Volume_AutoGrow_Value": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VolumeAlertPercent",
-                                        "type": "float",
-                                        "value": "@div(float(variables('VolumeAlertInput')),100)"
-                                    }
-                                ]
-                            }
-                        },
                         "Check_if_Scope_is_Sub_or_Resource_Group": {
                             "actions": {
                                 "Set_resourcesuffix_to_monitorrg": {
@@ -457,6 +423,23 @@
                                 ]
                             }
                         },
+                        "Initialize_VolumeAutoGrowMaxGibi": {
+                            "runAfter": {
+                                "Initialize_Volume_AutoGrow_GiB": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAutoGrowMaxGibi",
+                                        "type": "integer",
+                                        "value": 102400
+                                    }
+                                ]
+                            }
+                        },
                         "Initialize_Volume_AutoGrow_GiB": {
                             "runAfter": {
                                 "Initialize_Volume_AutoGrow_Percent": [
@@ -475,7 +458,7 @@
                         },
                         "Initialize_Volume_AutoGrow_Percent": {
                             "runAfter": {
-                                "Change_Capacity_Pool_String_to_Float_and_Divide_by_100": [
+                                "Set_CapacityAlertPercent_threshold_float": [
                                     "Succeeded"
                                 ]
                             },
@@ -485,23 +468,6 @@
                                     {
                                         "name": "VolumeAutoGrowPercent",
                                         "type": "integer"
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_variable": {
-                            "runAfter": {
-                                "Change_Volume_String_to_Float_and_Divide_by_100": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VolumeAlertPercentWarning",
-                                        "type": "float",
-                                        "value": "@div(float(variables('VolumeAlertInputWarning')),100)"
                                     }
                                 ]
                             }
@@ -548,6 +514,23 @@
                                 }
                             }
                         },
+                        "Set_CapacityAlertPercent_threshold_float": {
+                            "runAfter": {
+                                "Set_VolumeAlertPercentWarning_threshold_float": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "CapacityAlertPercent",
+                                        "type": "float",
+                                        "value": "@div(float(variables('CapacityAlertInput')),100)"
+                                    }
+                                ]
+                            }
+                        },
                         "Set_Capacity_Pool_Alert_Percentage_(consumed)": {
                             "runAfter": {},
                             "type": "InitializeVariable",
@@ -591,7 +574,7 @@
                                         "name": "action_group",
                                         "type": "string",
                                         "value": "[parameters('Existing Action Group Name for Capacity Notifications')]"
-                                }
+                                    }
                                 ]
                             }
                         },
@@ -631,7 +614,7 @@
                         },
                         "Set_Target_Resource_Group_to_Monitor": {
                             "runAfter": {
-                                "Initialize_Volume_AutoGrow_GiB": [
+                                "Initialize_VolumeAutoGrowMaxGibi": [
                                     "Succeeded"
                                 ]
                             },
@@ -1830,7 +1813,7 @@
                                                                                         },
                                                                                         "smbEncryption": {
                                                                                             "type": "boolean"
-                                                                                        },     
+                                                                                        },
                                                                                         "snapshotDirectoryVisible": {
                                                                                             "type": "boolean"
                                                                                         },
@@ -1851,6 +1834,9 @@
                                                                                 },
                                                                                 "tags": {
                                                                                     "properties": {
+                                                                                        "anfcapacitymanager_autogrow_maxgib": {
+                                                                                            "type": "string"
+                                                                                        },
                                                                                         "anfcapacitymanager_autogrow_value": {
                                                                                             "type": "string"
                                                                                         },
@@ -2051,7 +2037,7 @@
                                                                         },
                                                                         "Get_Detail_of_the_Containing_Pool": {
                                                                             "runAfter": {
-                                                                                "Test_if_Gibibytes_is_not_a_whole_number": [
+                                                                                "Test_if_New_Size_is_Greater_than_Max_Size": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -2276,28 +2262,16 @@
                                                                                 }
                                                                             }
                                                                         },
-                                                                        "Resize_the_Volume": {
+                                                                        "Set_VolumeAutoGrowMaxGibi_from_Volume_Tag": {
                                                                             "runAfter": {
-                                                                                "Test_if_Volume_is_CRR_Source": [
+                                                                                "Test_if_Gibibytes_is_not_a_whole_number": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
-                                                                            "type": "Http",
+                                                                            "type": "SetVariable",
                                                                             "inputs": {
-                                                                                "authentication": {
-                                                                                    "type": "ManagedServiceIdentity"
-                                                                                },
-                                                                                "body": {
-                                                                                    "location": "@{body('Parse_Details_of_the_Resource')?['location']}",
-                                                                                    "properties": {
-                                                                                        "creationToken": "@{body('Parse_Details_of_the_Resource')?['properties']?['creationToken']}",
-                                                                                        "serviceLevel": "@{body('Parse_Details_of_the_Resource')?['properties']?['serviceLevel']}",
-                                                                                        "subnetId": "@{body('Parse_Details_of_the_Resource')?['properties']?['subnetId']}",
-                                                                                        "usageThreshold": "@variables('AutoGrowNewSizeEvenGibi')"
-                                                                                    }
-                                                                                },
-                                                                                "method": "PATCH",
-                                                                                "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
+                                                                                "name": "VolumeAutoGrowMaxGibi",
+                                                                                "value": "@int(body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow_maxgib'])"
                                                                             }
                                                                         },
                                                                         "Switch": {
@@ -2346,56 +2320,56 @@
                                                                                                 ]
                                                                                             },
                                                                                             "type": "SetVariable",
-                                                                            "inputs": {
-                                                                                "name": "AutoGrowNewSizeBytes",
-                                                                                "value": "@add(mul(body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'],mul(variables('VolumeAutoGrowPercent'), 0.01)),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
-                                                                            }
-                                                                        },
-                                                                        "Set_Volume_New_Size_Gibibytes_(percent)": {
-                                                                            "runAfter": {
-                                                                                "Set_Volume_New_Size_Bytes_(percent)": [
-                                                                                    "Succeeded"
-                                                                                ]
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeBytes",
+                                                                                                "value": "@add(mul(body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'],mul(variables('VolumeAutoGrowPercent'), 0.01)),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Volume_New_Size_Gibibytes_(percent)": {
+                                                                                            "runAfter": {
+                                                                                                "Set_Volume_New_Size_Bytes_(percent)": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeGibibytes",
+                                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Grow_by_TiB": {
+                                                                                    "case": "t",
+                                                                                    "actions": {
+                                                                                        "Set_Volume_New_Size_Bytes_(t)": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeBytes",
+                                                                                                "value": "@add(mul(int(split(variables('VolumeAutoGrowInput'),'t')[0]),1099511627776),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
+                                                                                            }
+                                                                                        },
+                                                                                        "Set_Volume_New_Size_Gibibytes_(t)": {
+                                                                                            "runAfter": {
+                                                                                                "Set_Volume_New_Size_Bytes_(t)": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "SetVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "AutoGrowNewSizeGibibytes",
+                                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
                                                                             },
-                                                                            "type": "SetVariable",
-                                                                            "inputs": {
-                                                                                "name": "AutoGrowNewSizeGibibytes",
-                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "Grow_by_TiB": {
-                                                                    "case": "t",
-                                                                    "actions": {
-                                                                        "Set_Volume_New_Size_Bytes_(t)": {
-                                                                            "runAfter": {},
-                                                                            "type": "SetVariable",
-                                                                            "inputs": {
-                                                                                "name": "AutoGrowNewSizeBytes",
-                                                                                "value": "@add(mul(int(split(variables('VolumeAutoGrowInput'),'t')[0]),1099511627776),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])"
-                                                                            }
-                                                                        },
-                                                                        "Set_Volume_New_Size_Gibibytes_(t)": {
-                                                                            "runAfter": {
-                                                                                "Set_Volume_New_Size_Bytes_(t)": [
-                                                                                    "Succeeded"
-                                                                                ]
+                                                                            "default": {
+                                                                                "actions": {}
                                                                             },
-                                                                            "type": "SetVariable",
-                                                                            "inputs": {
-                                                                                "name": "AutoGrowNewSizeGibibytes",
-                                                                                "value": "@div(variables('AutoGrowNewSizeBytes'),1073741824)"
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                            "default": {
-                                                                "actions": {}
-                                                            },
-                                                            "expression": "@last(toLower(variables('VolumeAutoGrowInput')))",
-                                                            "type": "Switch"
+                                                                            "expression": "@last(toLower(variables('VolumeAutoGrowInput')))",
+                                                                            "type": "Switch"
                                                                         },
                                                                         "Test_if_Gibibytes_is_not_a_whole_number": {
                                                                             "actions": {
@@ -2431,6 +2405,80 @@
                                                                                         "greater": [
                                                                                             "@mod(variables('AutoGrowNewSizeGibibytes'),1)",
                                                                                             0
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        },
+                                                                        "Test_if_New_Size_is_Greater_than_Max_Size": {
+                                                                            "actions": {
+                                                                                "Set_New_Size_to_Max_Size": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "AutoGrowNewSizeEvenGibi",
+                                                                                        "value": "@mul(variables('VolumeAutoGrowMaxGibi'),1073741824)"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "runAfter": {
+                                                                                "Set_VolumeAutoGrowMaxGibi_from_Volume_Tag": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "greater": [
+                                                                                            "@variables('AutoGrowNewSizeEvenGibi')",
+                                                                                            "@mul(variables('VolumeAutoGrowMaxGibi'),1073741824)"
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        },
+                                                                        "Test_if_New_Size_is_Less_than_Current_Size": {
+                                                                            "actions": {},
+                                                                            "runAfter": {
+                                                                                "Test_if_Volume_is_CRR_Source": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "else": {
+                                                                                "actions": {
+                                                                                    "Resize_the_Volume": {
+                                                                                        "runAfter": {},
+                                                                                        "trackedProperties": {
+                                                                                            "volumeuri": "@action().inputs.uri"
+                                                                                        },
+                                                                                        "type": "Http",
+                                                                                        "inputs": {
+                                                                                            "authentication": {
+                                                                                                "type": "ManagedServiceIdentity"
+                                                                                            },
+                                                                                            "body": {
+                                                                                                "location": "@{body('Parse_Details_of_the_Resource')?['location']}",
+                                                                                                "properties": {
+                                                                                                    "creationToken": "@{body('Parse_Details_of_the_Resource')?['properties']?['creationToken']}",
+                                                                                                    "serviceLevel": "@{body('Parse_Details_of_the_Resource')?['properties']?['serviceLevel']}",
+                                                                                                    "subnetId": "@{body('Parse_Details_of_the_Resource')?['properties']?['subnetId']}",
+                                                                                                    "usageThreshold": "@variables('AutoGrowNewSizeEvenGibi')"
+                                                                                                }
+                                                                                            },
+                                                                                            "method": "PATCH",
+                                                                                            "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "lessOrEquals": [
+                                                                                            "@variables('AutoGrowNewSizeEvenGibi')",
+                                                                                            "@body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']"
                                                                                         ]
                                                                                     }
                                                                                 ]
@@ -2539,39 +2587,39 @@
                                                                                                                     },
                                                                                                                     "utilizedThroughputMibps": {
                                                                                                                         "type": "number"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            },
+                                                                                                            "tags": {
+                                                                                                                "properties": {
+                                                                                                                    "creator": {
+                                                                                                                        "type": "string"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            },
+                                                                                                            "type": {
+                                                                                                                "type": "string"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "type": "object"
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "runAfter": {
+                                                                                            "Resize_the_Pool": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "expression": "@equals(body('Parse_Source_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
+                                                                                        "limit": {
+                                                                                            "count": 60,
+                                                                                            "timeout": "PT1H"
+                                                                                        },
+                                                                                        "type": "Until"
                                                                                     }
-                                                                                },
-                                                                                "type": "object"
-                                                                            },
-                                                                            "tags": {
-                                                                                "properties": {
-                                                                                    "creator": {
-                                                                                        "type": "string"
-                                                                                    }
-                                                                                },
-                                                                                "type": "object"
-                                                                            },
-                                                                            "type": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "type": "object"
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "runAfter": {
-                                                            "Resize_the_Pool": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "expression": "@equals(body('Parse_Source_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
-                                                        "limit": {
-                                                            "count": 60,
-                                                            "timeout": "PT1H"
-                                                        },
-                                                        "type": "Until"
-                                                    }
                                                                                 }
                                                                             },
                                                                             "expression": {
@@ -2761,13 +2809,13 @@
                                                                                                 "name": "PreviousCumulativeDestinationQuota",
                                                                                                 "value": "@variables('CumulativeDestinationQuota')"
                                                                                             }
-                                                                                        }                                                                          
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "Parse_List_of_Volumes_in_Destination_Pool": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
+                                                                                        }
+                                                                                    },
+                                                                                    "runAfter": {
+                                                                                        "Parse_List_of_Volumes_in_Destination_Pool": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
                                                                     "type": "Foreach",
                                                                                     "runtimeConfiguration": {
                                                                                         "concurrency": {
@@ -2776,8 +2824,8 @@
                                                                                     }
                                                                                 },
                                                                                 "Get_Destination_Pool_Details": {
-                                                                                "runAfter": {},
-                                                                                "type": "Http",
+                                                                                    "runAfter": {},
+                                                                                    "type": "Http",
                                                                                     "inputs": {
                                                                                         "authentication": {
                                                                                             "type": "ManagedServiceIdentity"
@@ -2807,394 +2855,394 @@
                                                                                             "Succeeded"
                                                                                         ]
                                                                                     },
-                                                                                "type": "ParseJson",
-                                                                                "inputs": {
-                                                                                    "content": "@body('Get_Destination_Pool_Details')",
-                                                                                    "schema": {
-                                                                                        "properties": {
-                                                                                            "etag": {
-                                                                                                "type": "string"
-                                                                                            },
-                                                                                            "id": {
-                                                                                                "type": "string"
-                                                                                            },
-                                                                                            "location": {
-                                                                                                "type": "string"
-                                                                                            },
-                                                                                            "name": {
-                                                                                                "type": "string"
-                                                                                            },
+                                                                                    "type": "ParseJson",
+                                                                                    "inputs": {
+                                                                                        "content": "@body('Get_Destination_Pool_Details')",
+                                                                                        "schema": {
                                                                                             "properties": {
-                                                                                                "properties": {
-                                                                                                    "encryptionType": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "poolId": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "provisioningState": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "qosType": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "serviceLevel": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "size": {
-                                                                                                        "type": "integer"
-                                                                                                    },
-                                                                                                    "totalThroughputMibps": {
-                                                                                                        "type": "number"
-                                                                                                    },
-                                                                                                    "utilizedThroughputMibps": {
-                                                                                                        "type": "number"
-                                                                                                    }
+                                                                                                "etag": {
+                                                                                                    "type": "string"
                                                                                                 },
-                                                                                                "type": "object"
-                                                                                            },
-                                                                                            "tags": {
-                                                                                                "properties": {
-                                                                                                    "billing": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "creator": {
-                                                                                                        "type": "string"
-                                                                                                    }
+                                                                                                "id": {
+                                                                                                    "type": "string"
                                                                                                 },
-                                                                                                "type": "object"
-                                                                                            },
-                                                                                            "type": {
-                                                                                                "type": "string"
-                                                                                            }
-                                                                                        },
-                                                                                        "type": "object"
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            "Parse_List_of_Volumes_in_Destination_Pool": {
-                                                                                "runAfter": {
-                                                                                    "Get_all_Volumes_in_Destination_Pool": [
-                                                                                        "Succeeded"
-                                                                                    ]
-                                                                                },
-                                                                                "type": "ParseJson",
-                                                                                "inputs": {
-                                                                                    "content": "@body('Get_all_Volumes_in_Destination_Pool')",
-                                                                                    "schema": {
-                                                                                        "properties": {
-                                                                                            "value": {
-                                                                                                "items": {
+                                                                                                "location": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "name": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "properties": {
                                                                                                     "properties": {
-                                                                                                        "etag": {
+                                                                                                        "encryptionType": {
                                                                                                             "type": "string"
                                                                                                         },
-                                                                                                        "id": {
+                                                                                                        "poolId": {
                                                                                                             "type": "string"
                                                                                                         },
-                                                                                                        "location": {
+                                                                                                        "provisioningState": {
                                                                                                             "type": "string"
                                                                                                         },
-                                                                                                        "name": {
+                                                                                                        "qosType": {
                                                                                                             "type": "string"
                                                                                                         },
+                                                                                                        "serviceLevel": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "size": {
+                                                                                                            "type": "integer"
+                                                                                                        },
+                                                                                                        "totalThroughputMibps": {
+                                                                                                            "type": "number"
+                                                                                                        },
+                                                                                                        "utilizedThroughputMibps": {
+                                                                                                            "type": "number"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "type": "object"
+                                                                                                },
+                                                                                                "tags": {
+                                                                                                    "properties": {
+                                                                                                        "billing": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "creator": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "type": "object"
+                                                                                                },
+                                                                                                "type": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Parse_List_of_Volumes_in_Destination_Pool": {
+                                                                                    "runAfter": {
+                                                                                        "Get_all_Volumes_in_Destination_Pool": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "ParseJson",
+                                                                                    "inputs": {
+                                                                                        "content": "@body('Get_all_Volumes_in_Destination_Pool')",
+                                                                                        "schema": {
+                                                                                            "properties": {
+                                                                                                "value": {
+                                                                                                    "items": {
                                                                                                         "properties": {
+                                                                                                            "etag": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "id": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "location": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "name": {
+                                                                                                                "type": "string"
+                                                                                                            },
                                                                                                             "properties": {
-                                                                                                                "baremetalTenantId": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "creationToken": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "exportPolicy": {
-                                                                                                                    "properties": {
-                                                                                                                        "rules": {
-                                                                                                                            "items": {
-                                                                                                                                "properties": {
-                                                                                                                                    "allowedClients": {
-                                                                                                                                        "type": "string"
-                                                                                                                                    },
-                                                                                                                                    "cifs": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    },
-                                                                                                                                    "nfsv3": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    },
-                                                                                                                                    "nfsv4": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    },
-                                                                                                                                    "nfsv41": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    },
-                                                                                                                                    "ruleIndex": {
-                                                                                                                                        "type": "integer"
-                                                                                                                                    },
-                                                                                                                                    "unixReadOnly": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    },
-                                                                                                                                    "unixReadWrite": {
-                                                                                                                                        "type": "boolean"
-                                                                                                                                    }
-                                                                                                                                },
-                                                                                                                                "required": [],
-                                                                                                                                "type": "object"
-                                                                                                                            },
-                                                                                                                            "type": "array"
-                                                                                                                        }
+                                                                                                                "properties": {
+                                                                                                                    "baremetalTenantId": {
+                                                                                                                        "type": "string"
                                                                                                                     },
-                                                                                                                    "type": "object"
-                                                                                                                },
-                                                                                                                "fileSystemId": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "mountTargets": {
-                                                                                                                    "items": {
+                                                                                                                    "creationToken": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "exportPolicy": {
                                                                                                                         "properties": {
-                                                                                                                            "endIp": {
+                                                                                                                            "rules": {
+                                                                                                                                "items": {
+                                                                                                                                    "properties": {
+                                                                                                                                        "allowedClients": {
+                                                                                                                                            "type": "string"
+                                                                                                                                        },
+                                                                                                                                        "cifs": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        },
+                                                                                                                                        "nfsv3": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        },
+                                                                                                                                        "nfsv4": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        },
+                                                                                                                                        "nfsv41": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        },
+                                                                                                                                        "ruleIndex": {
+                                                                                                                                            "type": "integer"
+                                                                                                                                        },
+                                                                                                                                        "unixReadOnly": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        },
+                                                                                                                                        "unixReadWrite": {
+                                                                                                                                            "type": "boolean"
+                                                                                                                                        }
+                                                                                                                                    },
+                                                                                                                                    "required": [],
+                                                                                                                                    "type": "object"
+                                                                                                                                },
+                                                                                                                                "type": "array"
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        "type": "object"
+                                                                                                                    },
+                                                                                                                    "fileSystemId": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "mountTargets": {
+                                                                                                                        "items": {
+                                                                                                                            "properties": {
+                                                                                                                                "endIp": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "fileSystemId": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "gateway": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "ipAddress": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "mountTargetId": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "netmask": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "provisioningState": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "startIp": {
+                                                                                                                                    "type": "string"
+                                                                                                                                },
+                                                                                                                                "subnet": {
+                                                                                                                                    "type": "string"
+                                                                                                                                }
+                                                                                                                            },
+                                                                                                                            "required": [],
+                                                                                                                            "type": "object"
+                                                                                                                        },
+                                                                                                                        "type": "array"
+                                                                                                                    },
+                                                                                                                    "name": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "protocolTypes": {
+                                                                                                                        "items": {
+                                                                                                                            "type": "string"
+                                                                                                                        },
+                                                                                                                        "type": "array"
+                                                                                                                    },
+                                                                                                                    "provisioningState": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "serviceLevel": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "subnetId": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "usageThreshold": {
+                                                                                                                        "type": "integer"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            },
+                                                                                                            "type": {
+                                                                                                                "type": "string"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "required": [],
+                                                                                                        "type": "object"
+                                                                                                    },
+                                                                                                    "type": "array"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Test_if_Destination_Pool_will_fit_new_Volume_Size": {
+                                                                                    "actions": {},
+                                                                                    "runAfter": {
+                                                                                        "For_each_Volume_in_Destination_Pool": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "else": {
+                                                                                        "actions": {
+                                                                                            "Resize_Destination_Pool": {
+                                                                                                "runAfter": {},
+                                                                                                "type": "Http",
+                                                                                                "inputs": {
+                                                                                                    "authentication": {
+                                                                                                        "type": "ManagedServiceIdentity"
+                                                                                                    },
+                                                                                                    "body": {
+                                                                                                        "location": "@{body('Parse_Details_of_Destination_Pool')?['location']}",
+                                                                                                        "properties": {
+                                                                                                            "serviceLevel": "@{body('Parse_Details_of_Destination_Pool')?['properties']?['serviceLevel']}",
+                                                                                                            "size": "@add(sub(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),mod(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),1099511627776)),1099511627776)"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "method": "PATCH",
+                                                                                                    "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-02-01"
+                                                                                                }
+                                                                                            },
+                                                                                            "Wait_until_Destination_Pool_Status_is_Succeeded": {
+                                                                                                "actions": {
+                                                                                                    "Delay": {
+                                                                                                        "runAfter": {
+                                                                                                            "Parse_Destination_Pool_Status": [
+                                                                                                                "Succeeded"
+                                                                                                            ]
+                                                                                                        },
+                                                                                                        "type": "Wait",
+                                                                                                        "inputs": {
+                                                                                                            "interval": {
+                                                                                                                "count": 30,
+                                                                                                                "unit": "Second"
+                                                                                                            }
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "Get_Destination_Pool_Status": {
+                                                                                                        "runAfter": {},
+                                                                                                        "type": "Http",
+                                                                                                        "inputs": {
+                                                                                                            "authentication": {
+                                                                                                                "type": "ManagedServiceIdentity"
+                                                                                                            },
+                                                                                                            "method": "GET",
+                                                                                                            "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-12-01"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "Parse_Destination_Pool_Status": {
+                                                                                                        "runAfter": {
+                                                                                                            "Get_Destination_Pool_Status": [
+                                                                                                                "Succeeded"
+                                                                                                            ]
+                                                                                                        },
+                                                                                                        "type": "ParseJson",
+                                                                                                        "inputs": {
+                                                                                                            "content": "@body('Get_Destination_Pool_Status')",
+                                                                                                            "schema": {
+                                                                                                                "properties": {
+                                                                                                                    "etag": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "id": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "location": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "name": {
+                                                                                                                        "type": "string"
+                                                                                                                    },
+                                                                                                                    "properties": {
+                                                                                                                        "properties": {
+                                                                                                                            "encryptionType": {
                                                                                                                                 "type": "string"
                                                                                                                             },
-                                                                                                                            "fileSystemId": {
-                                                                                                                                "type": "string"
-                                                                                                                            },
-                                                                                                                            "gateway": {
-                                                                                                                                "type": "string"
-                                                                                                                            },
-                                                                                                                            "ipAddress": {
-                                                                                                                                "type": "string"
-                                                                                                                            },
-                                                                                                                            "mountTargetId": {
-                                                                                                                                "type": "string"
-                                                                                                                            },
-                                                                                                                            "netmask": {
+                                                                                                                            "poolId": {
                                                                                                                                 "type": "string"
                                                                                                                             },
                                                                                                                             "provisioningState": {
                                                                                                                                 "type": "string"
                                                                                                                             },
-                                                                                                                            "startIp": {
+                                                                                                                            "qosType": {
                                                                                                                                 "type": "string"
                                                                                                                             },
-                                                                                                                            "subnet": {
+                                                                                                                            "serviceLevel": {
+                                                                                                                                "type": "string"
+                                                                                                                            },
+                                                                                                                            "size": {
+                                                                                                                                "type": "integer"
+                                                                                                                            },
+                                                                                                                            "totalThroughputMibps": {
+                                                                                                                                "type": "number"
+                                                                                                                            },
+                                                                                                                            "utilizedThroughputMibps": {
+                                                                                                                                "type": "number"
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        "type": "object"
+                                                                                                                    },
+                                                                                                                    "tags": {
+                                                                                                                        "properties": {
+                                                                                                                            "creator": {
                                                                                                                                 "type": "string"
                                                                                                                             }
                                                                                                                         },
-                                                                                                                        "required": [],
                                                                                                                         "type": "object"
                                                                                                                     },
-                                                                                                                    "type": "array"
-                                                                                                                },
-                                                                                                                "name": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "protocolTypes": {
-                                                                                                                    "items": {
+                                                                                                                    "type": {
                                                                                                                         "type": "string"
-                                                                                                                    },
-                                                                                                                    "type": "array"
+                                                                                                                    }
                                                                                                                 },
-                                                                                                                "provisioningState": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "serviceLevel": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "subnetId": {
-                                                                                                                    "type": "string"
-                                                                                                                },
-                                                                                                                "usageThreshold": {
-                                                                                                                    "type": "integer"
-                                                                                                                }
-                                                                                                            },
-                                                                                                            "type": "object"
-                                                                                                        },
-                                                                                                        "type": {
-                                                                                                            "type": "string"
+                                                                                                                "type": "object"
+                                                                                                            }
                                                                                                         }
-                                                                                                    },
-                                                                                                    "required": [],
-                                                                                                    "type": "object"
+                                                                                                    }
                                                                                                 },
-                                                                                                "type": "array"
+                                                                                                "runAfter": {
+                                                                                                    "Resize_Destination_Pool": [
+                                                                                                        "Succeeded"
+                                                                                                    ]
+                                                                                                },
+                                                                                                "expression": "@equals(body('Parse_Destination_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
+                                                                                                "limit": {
+                                                                                                    "count": 60,
+                                                                                                    "timeout": "PT1H"
+                                                                                                },
+                                                                                                "type": "Until"
                                                                                             }
-                                                                                        },
-                                                                                        "type": "object"
-                                                                                    }
+                                                                                        }
+                                                                                    },
+                                                                                    "expression": {
+                                                                                        "and": [
+                                                                                            {
+                                                                                                "lessOrEquals": [
+                                                                                                    "@sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])",
+                                                                                                    "@body('Parse_Details_of_Destination_Pool')?['properties']?['size']"
+                                                                                                ]
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "If"
                                                                                 }
                                                                             },
-                                                                            "Test_if_Destination_Pool_will_fit_new_Volume_Size": {
-                                                                                "actions": {},
-                                                                                "runAfter": {
-                                                                                    "For_each_Volume_in_Destination_Pool": [
-                                                                                        "Succeeded"
-                                                                                    ]
-                                                                                },
-                                                                                "else": {
-                                                                                    "actions": {
-                                                                                        "Resize_Destination_Pool": {
-                                                                                            "runAfter": {},
-                                                                                            "type": "Http",
-                                                                                            "inputs": {
-                                                                                                "authentication": {
-                                                                                                    "type": "ManagedServiceIdentity"
-                                                                                                },
-                                                                                                "body": {
-                                                                                                    "location": "@{body('Parse_Details_of_Destination_Pool')?['location']}",
-                                                                                                    "properties": {
-                                                                                                        "serviceLevel": "@{body('Parse_Details_of_Destination_Pool')?['properties']?['serviceLevel']}",
-                                                                                                        "size": "@add(sub(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),mod(sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold']),1099511627776)),1099511627776)"
-                                                                                                    }
-                                                                                                },
-                                                                                                "method": "PATCH",
-                                                                                                "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-02-01"
-                                                                                            }
-                                                                                        },
-                                                                                        "Wait_until_Destination_Pool_Status_is_Succeeded": {
-                                                                                            "actions": {
-                                                                                                "Delay": {
-                                                                                                    "runAfter": {
-                                                                                                        "Parse_Destination_Pool_Status": [
-                                                                                                            "Succeeded"
-                                                                                                        ]
-                                                                                                    },
-                                                                                                    "type": "Wait",
-                                                                                                    "inputs": {
-                                                                                                        "interval": {
-                                                                                                            "count": 30,
-                                                                                                            "unit": "Second"
-                                                                                                        }
-                                                                                        }
-                                                                                    },
-                                                                                    "Get_Destination_Pool_Status": {
-                                                                                        "runAfter": {},
-                                                                                        "type": "Http",
-                                                                                        "inputs": {
-                                                                                            "authentication": {
-                                                                                                "type": "ManagedServiceIdentity"
-                                                                                            },
-                                                                                            "method": "GET",
-                                                                                            "uri": "https://management.azure.com/@{body('Parse_Details_of_Destination_Pool')?['id']}?api-version=2020-12-01"
-                                                                                        }
-                                                                                    },
-                                                                                    "Parse_Destination_Pool_Status": {
-                                                                                        "runAfter": {
-                                                                                            "Get_Destination_Pool_Status": [
-                                                                                                "Succeeded"
-                                                                                            ]
-                                                                                        },
-                                                                                        "type": "ParseJson",
-                                                                                        "inputs": {
-                                                                                            "content": "@body('Get_Destination_Pool_Status')",
-                                                                                            "schema": {
-                                                                                                "properties": {
-                                                                                                    "etag": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "id": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "location": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "name": {
-                                                                                                        "type": "string"
-                                                                                                    },
-                                                                                                    "properties": {
-                                                                                                        "properties": {
-                                                                                                            "encryptionType": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "poolId": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "provisioningState": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "qosType": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "serviceLevel": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "size": {
-                                                                                                                "type": "integer"
-                                                                                                            },
-                                                                                                            "totalThroughputMibps": {
-                                                                                                                "type": "number"
-                                                                                                            },
-                                                                                                            "utilizedThroughputMibps": {
-                                                                                                                "type": "number"
-                                                                                                            }
-                                                                                                        },
-                                                                                                        "type": "object"
-                                                                                                    },
-                                                                                                    "tags": {
-                                                                                                        "properties": {
-                                                                                                            "creator": {
-                                                                                                                "type": "string"
-                                                                                                            }
-                                                                                                        },
-                                                                                                        "type": "object"
-                                                                                                    },
-                                                                                                    "type": {
-                                                                                                        "type": "string"
-                                                                                                    }
-                                                                                                },
-                                                                                                "type": "object"
-                                                                                            }
-                                                                                        }
+                                                                            "runAfter": {
+                                                                                "Test_if_New_Volume_Size_will_fit_in_Capacity_Pool": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "equals": [
+                                                                                            "@body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['endPointType']",
+                                                                                            "Src"
+                                                                                        ]
                                                                                     }
-                                                                                },
-                                                                                "runAfter": {
-                                                                                    "Resize_Destination_Pool": [
-                                                                                        "Succeeded"
-                                                                                    ]
-                                                                                },
-                                                                                "expression": "@equals(body('Parse_Destination_Pool_Status')?['properties']?['provisioningState'], 'Succeeded')",
-                                                                                "limit": {
-                                                                                    "count": 60,
-                                                                                    "timeout": "PT1H"
-                                                                                },
-                                                                                "type": "Until"
-                                                                            }
-                                                                                    }
-                                                                                },
-                                                                                "expression": {
-                                                                                    "and": [
-                                                                                        {
-                                                                                            "lessOrEquals": [
-                                                                                                "@sub(add(variables('CumulativeDestinationQuota'),variables('AutoGrowNewSizeEvenGibi')),body('Parse_Details_of_the_Resource')?['properties']?['usageThreshold'])",
-                                                                                                "@body('Parse_Details_of_Destination_Pool')?['properties']?['size']"
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                "type": "If"
-                                                                            }
-                                                                        },
-                                                                        "runAfter": {
-                                                                            "Test_if_New_Volume_Size_will_fit_in_Capacity_Pool": [
-                                                                                "Succeeded"
-                                                                            ]
-                                                                        },
-                                                                        "expression": {
-                                                                            "and": [
-                                                                                {
-                                                                                    "equals": [
-                                                                                        "@body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['endPointType']",
-                                                                                        "Src"
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        "type": "If"
-                                                                    }
-                                                                },
-                                                                "runAfter": {
-                                                                    "Does_Volume_have_Custom_Auto_Grow_Tag": [
-                                                                        "Succeeded"
-                                                                    ]
-                                                                },
-                                                                "expression": {
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        }
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Does_Volume_have_Custom_Auto_Grow_Tag": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "expression": {
                                                                         "and": [
                                                                             {
                                                                                 "contains": [
@@ -5045,67 +5093,67 @@
                                                                                 "For_each_Volume_in_Sub": {
                                                                                     "foreach": "@body('Parse_All_Volumes_in_Sub')?['value']",
                                                                                     "actions": {
-                                                                                                "Create_Alert_Rule_for_Volume_(Sub)": {
-                                                                                                    "runAfter": {
-                                                                                                        "Parse_each_Volume_in_Sub": [
-                                                                                                            "Succeeded"
-                                                                                                        ]
-                                                                                                    },
-                                                                                                    "type": "Http",
-                                                                                                    "inputs": {
-                                                                                                        "authentication": {
-                                                                                                            "type": "ManagedServiceIdentity"
-                                                                                                        },
-                                                                                                        "body": {
-                                                                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
-                                                                                                            "location": "global",
-                                                                                                            "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
-                                                                                                            "properties": {
-                                                                                                                "actions": [
-                                                                                                                    {
-                                                                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
-                                                                                                                        "webHookProperties": {}
-                                                                                                                    },
-                                                                                                                    {
-                                                                                                                        "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('target_rg')}/providers/microsoft.insights/actiongroups/ANF_LogicAppTrigger",
-                                                                                                                        "webHookProperties": {}
-                                                                                                                    }
-                                                                                                                ],
-                                                                                                                "autoMitigate": true,
-                                                                                                                "criteria": {
-                                                                                                                    "allOf": [
-                                                                                                                        {
-                                                                                                                            "criterionType": "StaticThresholdCriterion",
-                                                                                                                            "dimensions": [],
-                                                                                                                            "metricName": "VolumeConsumedSizePercentage",
-                                                                                                                            "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                                                                                                                            "monitorTemplateType": 8,
-                                                                                                                            "name": "Metric1",
-                                                                                                                            "operator": "GreaterThan",
-                                                                                                                            "threshold": "@variables('VolumeAlertInput')",
-                                                                                                                            "timeAggregation": "Average"
-                                                                                                                        }
-                                                                                                                    ],
-                                                                                                                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
-                                                                                                                },
-                                                                                                                "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
-                                                                                                                "enabled": true,
-                                                                                                                "evaluationFrequency": "PT1M",
-                                                                                                                "scopes": [
-                                                                                                                    "@{body('Parse_each_Volume_in_Sub')?['id']}"
-                                                                                                                ],
-                                                                                                                "severity": 3,
-                                                                                                                "targetResourceRegion": "@{body('Parse_each_Volume_in_Sub')?['location']}",
-                                                                                                                "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                                                                                                                "templateType": 8,
-                                                                                                                "windowSize": "PT5M"
+                                                                                        "Create_Alert_Rule_for_Volume_(Sub)": {
+                                                                                            "runAfter": {
+                                                                                                "Parse_each_Volume_in_Sub": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "Http",
+                                                                                            "inputs": {
+                                                                                                "authentication": {
+                                                                                                    "type": "ManagedServiceIdentity"
+                                                                                                },
+                                                                                                "body": {
+                                                                                                    "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/microsoft.insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
+                                                                                                    "location": "global",
+                                                                                                    "name": "ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}",
+                                                                                                    "properties": {
+                                                                                                        "actions": [
+                                                                                                            {
+                                                                                                                "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('actiongroup_rg')}/providers/microsoft.insights/actiongroups/@{variables('action_group')}",
+                                                                                                                "webHookProperties": {}
                                                                                                             },
-                                                                                                            "tags": {},
-                                                                                                            "type": "Microsoft.Insights/metricAlerts"
+                                                                                                            {
+                                                                                                                "actionGroupId": "/subscriptions/@{variables('subid')}/resourcegroups/@{variables('target_rg')}/providers/microsoft.insights/actiongroups/ANF_LogicAppTrigger",
+                                                                                                                "webHookProperties": {}
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "autoMitigate": true,
+                                                                                                        "criteria": {
+                                                                                                            "allOf": [
+                                                                                                                {
+                                                                                                                    "criterionType": "StaticThresholdCriterion",
+                                                                                                                    "dimensions": [],
+                                                                                                                    "metricName": "VolumeConsumedSizePercentage",
+                                                                                                                    "metricNamespace": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                                    "monitorTemplateType": 8,
+                                                                                                                    "name": "Metric1",
+                                                                                                                    "operator": "GreaterThan",
+                                                                                                                    "threshold": "@variables('VolumeAlertInput')",
+                                                                                                                    "timeAggregation": "Average"
+                                                                                                                }
+                                                                                                            ],
+                                                                                                            "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                         },
-                                                                                                        "method": "PUT",
-                                                                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
-                                                                                                    }
+                                                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                        "enabled": true,
+                                                                                                        "evaluationFrequency": "PT1M",
+                                                                                                        "scopes": [
+                                                                                                            "@{body('Parse_each_Volume_in_Sub')?['id']}"
+                                                                                                        ],
+                                                                                                        "severity": 3,
+                                                                                                        "targetResourceRegion": "@{body('Parse_each_Volume_in_Sub')?['location']}",
+                                                                                                        "targetResourceType": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                                                                                                        "templateType": 8,
+                                                                                                        "windowSize": "PT5M"
+                                                                                                    },
+                                                                                                    "tags": {},
+                                                                                                    "type": "Microsoft.Insights/metricAlerts"
+                                                                                                },
+                                                                                                "method": "PUT",
+                                                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/metricAlerts/ANF_Vol_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[0]}_@{split(body('Parse_each_Volume_in_Sub')?['name'],'/')[1]}_@{last(split(body('Parse_each_Volume_in_Sub')?['name'],'/'))}?api-version=2018-03-01"
+                                                                                            }
                                                                                         },
                                                                                         "Parse_each_Volume_in_Sub": {
                                                                                             "runAfter": {},
