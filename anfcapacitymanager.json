@@ -629,6 +629,40 @@
                                 ]
                             }
                         },
+                        "Set_VolumeAlertPercentWarning_threshold_float": {
+                            "runAfter": {
+                                "Set_VolumeAlertPercent_threshold_float": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAlertPercentWarning",
+                                        "type": "float",
+                                        "value": "@div(float(variables('VolumeAlertInputWarning')),100)"
+                                    }
+                                ]
+                            }
+                        },
+                        "Set_VolumeAlertPercent_threshold_float": {
+                            "runAfter": {
+                                "Set_Volume_AutoGrow_Value": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VolumeAlertPercent",
+                                        "type": "float",
+                                        "value": "@div(float(variables('VolumeAlertInput')),100)"
+                                    }
+                                ]
+                            }
+                        },
                         "Set_Volume_Alert_Percentage_(consumed)": {
                             "runAfter": {
                                 "Set_Capacity_Pool_Alert_Percentage_(consumed)": [
