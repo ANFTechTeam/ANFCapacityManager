@@ -2140,6 +2140,36 @@
                                                                                 "uri": "https://management.azure.com/subscriptions/@{split(variables('scope'),'/')[2]}/resourceGroups/@{split(variables('scope'),'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(variables('scope'),'/')[8]}/capacityPools/@{split(variables('scope'),'/')[10]}/volumes?api-version=2020-02-01"
                                                                             }
                                                                         },
+                                                                        "If_VolumeAutoGrowMaxGibi_Volume_Tag": {
+                                                                            "actions": {
+                                                                                "Set_VolumeAutoGrowMaxGibi_from_Volume_Tag": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "VolumeAutoGrowMaxGibi",
+                                                                                        "value": "@int(body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow_maxgib'])"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "runAfter": {
+                                                                                "Test_if_Gibibytes_is_not_a_whole_number": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "expression": {
+                                                                                "and": [
+                                                                                    {
+                                                                                        "not": {
+                                                                                            "equals": [
+                                                                                                "@body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow_maxgib']",
+                                                                                                "@null"
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "type": "If"
+                                                                        },
                                                                         "Parse_Details_of_the_Containing_Pool": {
                                                                             "runAfter": {
                                                                                 "Get_Detail_of_the_Containing_Pool": [
@@ -2337,18 +2367,6 @@
                                                                                 }
                                                                             }
                                                                         },
-                                                                        "Set_VolumeAutoGrowMaxGibi_from_Volume_Tag": {
-                                                                            "runAfter": {
-                                                                                "Test_if_Gibibytes_is_not_a_whole_number": [
-                                                                                    "Succeeded"
-                                                                                ]
-                                                                            },
-                                                                            "type": "SetVariable",
-                                                                            "inputs": {
-                                                                                "name": "VolumeAutoGrowMaxGibi",
-                                                                                "value": "@int(body('Parse_Details_of_the_Resource')?['tags']?['anfcapacitymanager_autogrow_maxgib'])"
-                                                                            }
-                                                                        },
                                                                         "Switch": {
                                                                             "runAfter": {},
                                                                             "cases": {
@@ -2498,7 +2516,7 @@
                                                                                 }
                                                                             },
                                                                             "runAfter": {
-                                                                                "Set_VolumeAutoGrowMaxGibi_from_Volume_Tag": [
+                                                                                "If_VolumeAutoGrowMaxGibi_Volume_Tag": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
