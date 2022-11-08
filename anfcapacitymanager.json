@@ -4798,50 +4798,6 @@
                                         },
                                         "else": {
                                             "actions": {
-                                                "Create_ANFAutoAlerts_Alert_Group_(Sub)": {
-                                                    "runAfter": {},
-                                                    "type": "Http",
-                                                    "inputs": {
-                                                        "authentication": {
-                                                            "type": "ManagedServiceIdentity"
-                                                        },
-                                                        "body": {
-                                                            "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANF_LogicAppTrigger",
-                                                            "identity": null,
-                                                            "kind": null,
-                                                            "location": "Global",
-                                                            "name": "ANF_LogicAppTrigger",
-                                                            "properties": {
-                                                                "armRoleReceivers": [],
-                                                                "automationRunbookReceivers": [],
-                                                                "azureAppPushReceivers": [],
-                                                                "azureFunctionReceivers": [],
-                                                                "emailReceivers": [],
-                                                                "enabled": true,
-                                                                "groupShortName": "ANF_LAT",
-                                                                "itsmReceivers": [],
-                                                                "logicAppReceivers": [],
-                                                                "smsReceivers": [],
-                                                                "voiceReceivers": [],
-                                                                "webhookReceivers": [
-                                                                    {
-                                                                        "identifierUri": null,
-                                                                        "name": "ANFCapacityManager",
-                                                                        "objectId": null,
-                                                                        "serviceUri": "@{body('Parse_this_Logic_App_Details')?['value']}",
-                                                                        "tenantId": null,
-                                                                        "useAadAuth": false,
-                                                                        "useCommonAlertSchema": true
-                                                                    }
-                                                                ]
-                                                            },
-                                                            "tags": {},
-                                                            "type": "Microsoft.Insights/ActionGroups"
-                                                        },
-                                                        "method": "PUT",
-                                                        "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANF_LogicAppTrigger?api-version=2018-03-01"
-                                                    }
-                                                },
                                                 "Process_existing_Resources_(Sub)": {
                                                     "actions": {
                                                         "For_each_Resource_Group_in_Sub": {
@@ -5671,6 +5627,50 @@
                                                 },
                                                 "Test_agentMode_(Sub)": {
                                                     "actions": {
+                                                        "Create_ANFAutoAlerts_Alert_Group_(Sub)": {
+                                                            "runAfter": {},
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "body": {
+                                                                    "id": "/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANF_LogicAppTrigger",
+                                                                    "identity": null,
+                                                                    "kind": null,
+                                                                    "location": "Global",
+                                                                    "name": "ANF_LogicAppTrigger",
+                                                                    "properties": {
+                                                                        "armRoleReceivers": [],
+                                                                        "automationRunbookReceivers": [],
+                                                                        "azureAppPushReceivers": [],
+                                                                        "azureFunctionReceivers": [],
+                                                                        "emailReceivers": [],
+                                                                        "enabled": true,
+                                                                        "groupShortName": "ANF_LAT",
+                                                                        "itsmReceivers": [],
+                                                                        "logicAppReceivers": [],
+                                                                        "smsReceivers": [],
+                                                                        "voiceReceivers": [],
+                                                                        "webhookReceivers": [
+                                                                            {
+                                                                                "identifierUri": null,
+                                                                                "name": "ANFCapacityManager",
+                                                                                "objectId": null,
+                                                                                "serviceUri": "@{body('Parse_this_Logic_App_Details')?['value']}",
+                                                                                "tenantId": null,
+                                                                                "useAadAuth": false,
+                                                                                "useCommonAlertSchema": true
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "tags": {},
+                                                                    "type": "Microsoft.Insights/ActionGroups"
+                                                                },
+                                                                "method": "PUT",
+                                                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('target_rg')}/providers/Microsoft.Insights/actionGroups/ANF_LogicAppTrigger?api-version=2018-03-01"
+                                                            }
+                                                        },
                                                         "Create_Trigger_Alert_for_Capacity_Pool_Create_or_Modify_(Sub)": {
                                                             "runAfter": {
                                                                 "Create_Trigger_Alert_for_Volume_Deleted_(Sub)": [
@@ -5808,7 +5808,11 @@
                                                             }
                                                         },
                                                         "Create_Trigger_Alert_for_Volume_Create_or_Modify_(Sub)": {
-                                                            "runAfter": {},
+                                                            "runAfter": {
+                                                                "Create_ANFAutoAlerts_Alert_Group_(Sub)": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
                                                             "type": "Http",
                                                             "inputs": {
                                                                 "authentication": {
@@ -5940,11 +5944,7 @@
                                                             }
                                                         }
                                                     },
-                                                    "runAfter": {
-                                                        "Create_ANFAutoAlerts_Alert_Group_(Sub)": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
+                                                    "runAfter": {},
                                                     "expression": {
                                                         "and": [
                                                             {
