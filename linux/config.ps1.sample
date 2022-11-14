@@ -1,0 +1,25 @@
+# Provide a filesystem percent full threshold to determine when ANFCapacityManager logic app should be triggered
+$percentFullThreshold = 90
+
+# Set default Volume maximum Auto Grow size in GiB
+# If set to 0, the default behavior is to not grow the volume UNLESS the volume has the 'anfcapacitymanager_autogrow_maxgib' tag.
+# If set to 102400, the behavior is to let all volumes grow up to maximum of 100 TiB (102,400 GiB), UNLESS the volume has the 'anfcapacitymanager_autogrow_maxgib' tag.
+$defaultVolumeMaxGib = 0 
+
+# Provide the webhook URL of the ANFCapacityManager logic app
+$ANFCapacityManagerURI = ''
+
+# Provide service principal details for connecting to Azure RM
+$spid = '' # service principal Id
+$sppasswd = '' # service principal Password
+$tenantId = '' # tenant Id
+
+# Provide SMTP Server details for Email notifications
+$smtpUsername = ''
+$smtpPassword = ''
+$smtpServer = ''
+$emailFrom = ''
+$emailTo = ''
+
+# Provide the log file path
+$logFilePath = '/var/log/ANFCapacityManager.log'
