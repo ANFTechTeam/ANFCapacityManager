@@ -1,18 +1,20 @@
-# Provide a filesystem percent full threshold to determine when ANFCapacityManager logic app should be triggered
+# Provide a filesystem percent full threshold to determine when the ANFCapacityManager logic app should be triggered for auto grow
 $percentFullThreshold = 90
 
 # Set default Volume maximum Auto Grow size in GiB
 # If set to 0, the default behavior is to not grow the volume UNLESS the volume has the 'anfcapacitymanager_autogrow_maxgib' tag.
-# If set to 102400, the behavior is to let all volumes grow up to maximum of 100 TiB (102,400 GiB), UNLESS the volume has the 'anfcapacitymanager_autogrow_maxgib' tag.
+# If set to a non-zero integer, for example: 102400, the behavior is to let all volumes grow up to maximum of 100 TiB (102,400 GiB), UNLESS the volume has the 'anfcapacitymanager_autogrow_maxgib' tag.
+# The tag, 'anfcapacitymanager_autogrow_maxgib', will always override the default value.
 $defaultVolumeMaxGib = 0 
 
 # Provide the webhook URL of the ANFCapacityManager logic app
 $ANFCapacityManagerURI = ''
 
-# Provide service principal details for connecting to Azure RM
-$spid = '' # service principal Id
-$sppasswd = '' # service principal Password
-$tenantId = '' # tenant Id
+# It is recommended to enable the virtual machines's managed identity for authentication, the identity will need 'reader' role on the subscription(s)
+# Optionally, you can uncomment the three lines below and provide service principal details for connecting to Azure
+#$spid = '' # service principal Id
+#$sppasswd = '' # service principal Password
+#$tenantId = '' # tenant Id
 
 # Provide SMTP Server details for Email notifications
 $smtpUsername = ''
@@ -21,5 +23,10 @@ $smtpServer = ''
 $emailFrom = ''
 $emailTo = ''
 
-# Provide the log file path
-$logFilePath = '/var/log/ANFCapacityManager.log'
+# Provide the log file path with trailing '/' and the log file name
+$logFilePath = '/var/log/'
+$logFileName = 'ANFCapacityManager.log'
+
+# Provide the max size of each log file and number of log files to keep. By default, each log file will grow to a maximum of 10MB and 5 will be kept
+$logFileMaxSizeMB = 10
+$numberOfLogFiles = 5

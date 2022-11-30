@@ -22,19 +22,46 @@ function Send-Email ([string] $Subject, [string] $Body) {
     Send-MailMessage -smtpServer $smtpServer -Credential $credential -Usessl -Port 587 -from $emailFrom -to $emailTo -subject $Subject -Body $Body -BodyAsHtml -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
 }
 
+function Invoke-LogRotation () {
+    $currentLogFilePath = $logFilePath + $logFileName
+    $currentLogFile = Get-Item $currentLogFilePath
+    if($currentLogFile.Length/1MB -ge $logFileMaxSizeMB){
+        for($logNumber = $numberOfLogFiles-1; $logNumber -gt 0; $logNumber--){
+            if($logNumber -eq $numberOfLogFiles-1) {
+                $workingLogFile = $logFilePath + $logFileName + '.' + $logNumber
+                if(Test-Path $workingLogFile){
+                    Remove-Item $workingLogFile
+                }
+            } else {
+                $workingLogFile = $logFilePath + $logFileName + '.' + [string]$logNumber
+                $newFilePath = $logFilePath + $logFileName + '.' + [string]($logNumber + 1)
+                if(Test-Path $workingLogFile){
+                    Move-Item -Path $workingLogFile -Destination $newFilePath
+                }
+            }
+        }
+        $workingLogFile = $logFilePath + $logFileName
+        $newFilePath = $logFilePath + $logFileName + '.1'
+        Move-Item -Path $workingLogFile -Destination $newFilePath 
+    }
+}
+
 try {
     # Connect to Azure RM using VM managed identity
-    Connect-AzAccount -Identity
+    Connect-AzAccount -Identity -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 }
 catch {
     # Connect to Azure RM using service principal credentials
-    $passwd = ConvertTo-SecureString $sppasswd -AsPlainText -Force # service principal Password
-    $psCredential = New-Object System.Management.Automation.PSCredential($spid, $passwd)
-    Connect-AzAccount -ServicePrincipal -Credential $psCredential -Tenant $tenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    {
+        $passwd = ConvertTo-SecureString $sppasswd -AsPlainText -Force # service principal Password
+        $psCredential = New-Object System.Management.Automation.PSCredential($spid, $passwd)
+        Connect-AzAccount -ServicePrincipal -Credential $psCredential -Tenant $tenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    }
 }
 
+Invoke-LogRotation
 $date = Get-Date -Format yyyyMMddTHHmmss
-$logfile = $logFilePath
+$logfile = $logFilePath + $logFileName
 $dfout = Invoke-Command -ScriptBlock { df --output=source,pcent --type=nfs }
 $hostname = Invoke-Command -ScriptBlock { hostname }
 $allANFVolumes = Get-AzResource | Where-Object {$_.ResourceType -like 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes'}
@@ -90,3 +117,4 @@ foreach($volume in $dfout | where-object {$_ -notlike "File*"}) { # -notlike omi
         }
     }
 }
+
