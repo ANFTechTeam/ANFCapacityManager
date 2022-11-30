@@ -4,7 +4,7 @@ param (
 
 # Source variables.ps1 to get service principal and SMTP details for connecting to Azure RM
 try {
-    . "/usr/bin/ANFCapacityManager/config.ps1"
+    . "/usr/bin/ANFCapacityManager/linux/config.ps1"
 }
 catch {
     Write-Error "No credentials file was found in the path specified."
@@ -22,10 +22,16 @@ function Send-Email ([string] $Subject, [string] $Body) {
     Send-MailMessage -smtpServer $smtpServer -Credential $credential -Usessl -Port 587 -from $emailFrom -to $emailTo -subject $Subject -Body $Body -BodyAsHtml -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
 }
 
-# Connect to Azure RM using service principal credentials
-$passwd = ConvertTo-SecureString $sppasswd -AsPlainText -Force # service principal Password
-$psCredential = New-Object System.Management.Automation.PSCredential($spid, $passwd)
-Connect-AzAccount -ServicePrincipal -Credential $psCredential -Tenant $tenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+try {
+    # Connect to Azure RM using VM managed identity
+    Connect-AzAccount -Identity
+}
+catch {
+    # Connect to Azure RM using service principal credentials
+    $passwd = ConvertTo-SecureString $sppasswd -AsPlainText -Force # service principal Password
+    $psCredential = New-Object System.Management.Automation.PSCredential($spid, $passwd)
+    Connect-AzAccount -ServicePrincipal -Credential $psCredential -Tenant $tenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+}
 
 $date = Get-Date -Format yyyyMMddTHHmmss
 $logfile = $logFilePath
@@ -38,7 +44,15 @@ foreach($volume in $dfout | where-object {$_ -notlike "File*"}) { # -notlike omi
     $volumePath = $volumeDetails[0] # grabs the first element which is IP and volume path
     $volumePercent = $volumeDetails[1].split('%')[0] # define volume current percent full as integer
     $volumePathDetails = $volumePath -split ':/' # splits the volume path in two, IP and volume path
-    $volumePathIP = $volumePathDetails[0] # define volume mount path IP address
+    try {
+        [ipaddress]$volumePathDetails[0]
+        $volumePathIP = $volumePathDetails[0]
+    }
+    catch {
+        $hostToIP = Invoke-Command -ScriptBlock { host -t a $volumePathDetails[0] }
+        write-host $hostToIP
+        $volumePathIP = $hostToIP.split(' ')[3]
+    }
     $logentry = $date + ',' + $volumePath + ',' + $volumePercent # defines the log entry
     Add-Content $logfile $logentry # adds the log entry
     $volumeName = ($volumePathDetails[1] -split '/')[0]
@@ -66,7 +80,7 @@ foreach($volume in $dfout | where-object {$_ -notlike "File*"}) { # -notlike omi
                     $AlertBody = '<h3>ANFCapacityManager Alert Notification</h3><h4>Volume Autogrow Trigger</h4><ul><li>Hostname: ' + $hostname + '</lu>' + '<li>Mount path: ' + $volumePath + '</li><li>Percent full: ' + $volumePercent + '</li><li>Current volume size: ' + $ANFVolumeDetails.UsageThreshold/1024/1024/1024 + ' GiB</li><li>Volume resource Id: <a href="https://portal.azure.com/#@/resource/' + $ANFVolume.ResourceId + '">' + $ANFVolume.ResourceId + '</a></li></ul><p><small><a href="https://github.com/ANFTechTeam/ANFCapacityManager">ANFCapacityManager</a> created by <a href="https://github.com/seanluce">Sean Luce, NetApp</a></small></p>'
                     Send-Email $AlertSubject $AlertBody
                 } else {
-                    $logentry = $date + ',' + $ANFVolume.ResoureId + ',MaxAutogrowGiBReached,' + $maxVolumeThreshold
+                    $logentry = $date + ',' + $ANFVolume.ResourceId + ',MaxAutogrowGiBReached,' + $maxVolumeThreshold
                     Add-Content $logfile $logentry
                     $AlertSubject = "ANFCapacityManager: Volume Max Size Reached: " + $volumeName + " on " + $hostname
                     $AlertBody = '<h3>ANFCapacityManager Alert Notification</h3><h4>Volume Max Size Reached</h4><ul><li>Hostname: ' + $hostname + '</lu>' + '<li>Mount path: ' + $volumePath + '</li><li>Percent full: ' + $volumePercent + '</li><li>Current volume size: ' + $ANFVolumeDetails.UsageThreshold/1024/1024/1024 + ' GiB</li><li>Volume resource Id: <a href="https://portal.azure.com/#@/resource/' + $ANFVolume.ResourceId + '">' + $ANFVolume.ResourceId + '</a></li></ul><p><small><a href="https://github.com/ANFTechTeam/ANFCapacityManager">ANFCapacityManager</a> created by <a href="https://github.com/seanluce">Sean Luce, NetApp</a></small></p>'
