@@ -70,7 +70,7 @@ There are 4 volume tags that can be used to control the behavior of ANFCapacityM
 
 ## **IMPORTANT: Follow all installation steps completely!**  
 
-1. Create an [action group](https://learn.microsoft.com/azure/azure-monitor/alerts/action-groups?ocid=AID754288&wt.mc_id=CFID0448) that will be used to alert you or your team when a volume or capacity pool has reached the target threshold. You may skip this step if you arelady have action group that you would like to use.
+1. Create an [action group](https://learn.microsoft.com/azure/azure-monitor/alerts/action-groups?ocid=AID754288&wt.mc_id=CFID0448) that will be used to alert you or your team when a volume or capacity pool has reached the target threshold. You may skip this step if you already have an action group that you would like to use.
 
 2. **Click the button above to deploy the ANFCapacityManager logic app** Complete the following fields:
    * **Subscription** - this is the subscription where the logic will be deployed
