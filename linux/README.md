@@ -60,7 +60,7 @@ The ANFCapacityManager Agent script requires read access to your Azure subscript
 
 #### Steps to deploy the ANFCapacityManager Agent script
 
-**From a Linux host where Azure NetApp Files volumes are mounted**
+**From a Linux host where Azure NetApp Files volumes are mounted:**
 1. [Install PowerShell v7.2.x](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.2)
     1. PowerShell v7.3 has not been tested and may not work correctly
 1. Start PowerShell `sudo pwsh`
