@@ -48,7 +48,7 @@ function Invoke-LogRotation () {
 
 try {
     # Connect to Azure RM using VM managed identity
-    Connect-AzAccount -Identity -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    Connect-AzAccount -Identity -ErrorAction Stop -WarningAction SilentlyContinue
 }
 catch {
     # Connect to Azure RM using service principal credentials

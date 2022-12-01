@@ -71,6 +71,13 @@
             "metadata": {
                 "description": "Specify in [g]ibibytes, [t]ebibytes, or [%]percent) i.e. 500g, 10t, 25%. A value of 0 (zero) will disable the Auto Grow functionality."
             }
+        },
+        "Agent Mode": {
+            "defaultValue": "@false",
+            "type": "bool",
+            "metadata": {
+                "description": "Set to '@true' if using with ANFCapacityManager Agent"
+            }
         }
     },
     "variables": {},
@@ -726,7 +733,7 @@
                                     {
                                         "name": "agentMode",
                                         "type": "boolean",
-                                        "value": "@false"
+                                        "value": "[parameters('Agent Mode')]"
                                     }
                                 ]
                             }
@@ -811,7 +818,7 @@
                                                                                             ],
                                                                                             "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                         },
-                                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                         "enabled": true,
                                                                                         "evaluationFrequency": "PT1M",
                                                                                         "scopes": [
@@ -1108,7 +1115,7 @@
                                                                                             ],
                                                                                             "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                         },
-                                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                         "enabled": true,
                                                                                         "evaluationFrequency": "PT1M",
                                                                                         "scopes": [
@@ -1427,7 +1434,7 @@
                                                                                                     ],
                                                                                                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                 },
-                                                                                                "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                 "enabled": true,
                                                                                                 "evaluationFrequency": "PT1M",
                                                                                                 "scopes": [
@@ -3721,7 +3728,7 @@
                                                                                         ],
                                                                                         "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                     },
-                                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                     "enabled": true,
                                                                                     "evaluationFrequency": "PT1M",
                                                                                     "scopes": [
@@ -3784,7 +3791,7 @@
                                                                                                         ],
                                                                                                         "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                     },
-                                                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                     "enabled": true,
                                                                                                     "evaluationFrequency": "PT1M",
                                                                                                     "scopes": [
@@ -3840,7 +3847,7 @@
                                                                                                                 ],
                                                                                                                 "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                             },
-                                                                                                            "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                            "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                             "enabled": true,
                                                                                                             "evaluationFrequency": "PT1M",
                                                                                                             "scopes": [
@@ -4555,7 +4562,7 @@
                                                                         ],
                                                                         "odata.type": null
                                                                     },
-                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                     "enabled": true,
                                                                     "scopes": [
                                                                         "/subscriptions/@{variables('subid')}"
@@ -4629,7 +4636,7 @@
                                                                         ],
                                                                         "odata.type": null
                                                                     },
-                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                     "enabled": true,
                                                                     "scopes": [
                                                                         "/subscriptions/@{variables('subid')}"
@@ -4703,7 +4710,7 @@
                                                                         ],
                                                                         "odata.type": null
                                                                     },
-                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                     "enabled": true,
                                                                     "scopes": [
                                                                         "/subscriptions/@{variables('subid')}"
@@ -4777,7 +4784,7 @@
                                                                         ],
                                                                         "odata.type": null
                                                                     },
-                                                                    "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                    "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                     "enabled": true,
                                                                     "scopes": [
                                                                         "/subscriptions/@{variables('subid')}"
@@ -4870,7 +4877,7 @@
                                                                                                     ],
                                                                                                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                 },
-                                                                                                "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                 "enabled": true,
                                                                                                 "evaluationFrequency": "PT1M",
                                                                                                 "scopes": [
@@ -4935,7 +4942,7 @@
                                                                                                             ],
                                                                                                             "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                         },
-                                                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                         "enabled": true,
                                                                                                         "evaluationFrequency": "PT1M",
                                                                                                         "scopes": [
@@ -5110,7 +5117,7 @@
                                                                                                                     ],
                                                                                                                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
                                                                                                                 },
-                                                                                                                "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                                                                "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                                                                 "enabled": true,
                                                                                                                 "evaluationFrequency": "PT1M",
                                                                                                                 "scopes": [
@@ -5744,7 +5751,7 @@
                                                                             ],
                                                                             "odata.type": null
                                                                         },
-                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                         "enabled": true,
                                                                         "scopes": [
                                                                             "/subscriptions/@{variables('subid')}"
@@ -5812,7 +5819,7 @@
                                                                             ],
                                                                             "odata.type": null
                                                                         },
-                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                         "enabled": true,
                                                                         "scopes": [
                                                                             "/subscriptions/@{variables('subid')}"
@@ -5880,7 +5887,7 @@
                                                                             ],
                                                                             "odata.type": null
                                                                         },
-                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                         "enabled": true,
                                                                         "scopes": [
                                                                             "/subscriptions/@{variables('subid')}"
@@ -5948,7 +5955,7 @@
                                                                             ],
                                                                             "odata.type": null
                                                                         },
-                                                                        "description": "Created by ANFCapacityManager v4.0, https://github.com/ANFTechTeam/ANFCapacityManager",
+                                                                        "description": "Created by ANFCapacityManager v5.0, https://github.com/ANFTechTeam/ANFCapacityManager",
                                                                         "enabled": true,
                                                                         "scopes": [
                                                                             "/subscriptions/@{variables('subid')}"
