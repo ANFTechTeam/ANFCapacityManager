@@ -73,10 +73,10 @@
             }
         },
         "Agent Mode": {
-            "defaultValue": "@false",
+            "defaultValue": "false",
             "type": "bool",
             "metadata": {
-                "description": "Set to '@true' if using with ANFCapacityManager Agent"
+                "description": "Set to 'true' if using with ANFCapacityManager Agent"
             }
         }
     },

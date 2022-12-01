@@ -86,7 +86,7 @@ There are 4 volume tags that can be used to control the behavior of ANFCapacityM
    * **Existing Action Group Resource Group** - this is the resource group that contains your **_existing_** Action Group.
    * **Existing Action Group for Capacity Notifications** - this is the action group that will be triggered for capacity based alerting. This should be pre-created by you. This action group could send email/sms, or anything else you would like.
    * **Auto Grow Amount** - Percent of the existing volume size or GiB (g) or TiB (t) to automatically grow a volume if it reaches the % Full Threshold specified above. A value of 0 (zero) will disable the AutoGrow feature.
-   * **Agent Mode** - leave set to '@false' unless using [ANFCapacityManager Agent](/linux/README.md)
+   * **Agent Mode** - leave set to 'false' unless using [ANFCapacityManager Agent](/linux/README.md)
 
 3. **Give the logic app's managed identity permissions to read, create, and modify resources within your environment:** Navigate to Resource groups, choose the resource group that you specified for 'Target Resource Group for Alerts'. Choose 'Access control (IAM)' from the menu. Click the '+ Add' button and choose 'Add role assignment'. For the 'Role', choose Contributor. For 'Assign access to', choose Logic App, now select 'ANFCapacityManager' (or the name you specified in step 1). Finally, click the 'Save' button. **Repeat as needed to give the logic app the required access:**
    * **Resource Group containing ANFCapacityManager**: 'Contributor'

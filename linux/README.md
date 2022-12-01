@@ -46,7 +46,7 @@ The ANFCapacityManager logic app's managed identity will need write permissions 
     * **Existing Action Group Resource Group** - leave this field blank
     * **Existing Action Group for Capacity Notifications** - leave this field blank
     * **Auto Grow Amount** - Percent (%) of the existing volume size or GiB (g) or TiB (t) to automatically grow a volume if it reaches the % Full Threshold specified above. A value of 0 (zero) will disable the auto grow functionality.
-    * **Agent Mode** - Set to '@true'
+    * **Agent Mode** - Set to 'true'
 
 2. Retrieve the logic app's webhook URI by navigating to the logic app and clicking 'Logic app designer', click on the first box to expand it, and finally click on the copy to clipboard icon.
 
