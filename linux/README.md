@@ -81,6 +81,8 @@ You can run the agent manually to verify it is working correctly: `sudo pwsh /us
 
 ## Email Notifications
 
+Email notifications depend on an SMTP relay. Configure the SMTP settings in the config (config.ps1) file. 
+
 The ANFCapacityManager Agent will send Email notifications for the following events:
 - Volume Autogrow Trigger, sent when a volume has reached the specified full threshold and the ANFCapacityManager logic app has been called
 - Volume Max Size Reached, sent when a volume has reached the specified full threshold and has already reached the maximum size specified
