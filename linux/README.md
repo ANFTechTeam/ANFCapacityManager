@@ -1,6 +1,6 @@
 # ANFCapacityManager Agent
 
-**ANFCapacityManager Agent** is a PowerShell script that measures volume utilization from a linux host and triggers the ANFCapacityManager logic app to perform volume auto grow events. Measuring volume utilization from the linux host greatly reduces the response time of ANFCapacityManager auto grow events.
+**ANFCapacityManager Agent** is a PowerShell script that measures volume utilization from a linux host and triggers the ANFCapacityManager logic app to perform volume auto grow events. Measuring volume utilization from the linux host greatly reduces the response time of ANFCapacityManager's auto grow functionality.
 
 Without **ANFCapacityManager Agent**, ANFCapacityManager relies on Azure monitor metrics to trigger auto grow events. Azure monitor metrics are commonly 10-15 minutes behind the actual value measured from the hosts. Because of this delay, the speed at which data is being written to the Azure NetApp Files volume combined with limited free space may result in the volume becoming full before ANFCapacityManager is able to be triggered.
 
@@ -9,6 +9,10 @@ Without **ANFCapacityManager Agent**, ANFCapacityManager relies on Azure monitor
 ## How does it work?
 
 The ANFCapacityManager Agent script collects volume utilization via the 'df' command for all network file systems (NFS) connected to the host. When it detects a volume's utilization is above the specified threshold it uses 'Get-AzResource' and 'Get-AzNetAppFilesVolume' to determine which Azure NetApp Files volume is mounted and then calls the ANFCapacityManager logic app to automatically grow the volume by the specified amount. 
+
+## How many agents do I need to deploy?
+
+**ANFCapacityManager Agent** can only monitor volume utilization for volumes that are mounted to the same host it is running on. If you have many hosts and do not want to deploy and maintain several instances of the agent, you could deploy a dedicated virtual machines and mount all of your volumes read only to that host. In this scenario you would only need a single agent to monitor all of your Azure NetApp Files volumes.
 
 ## Why PowerShell?
 
