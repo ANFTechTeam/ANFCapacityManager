@@ -12,7 +12,7 @@ The ANFCapacityManager Agent script collects volume utilization via the 'df' com
 
 ## How many agents do I need to deploy?
 
-**ANFCapacityManager Agent** can only monitor volume utilization for volumes that are mounted to the same host it is running on. If you have many hosts and do not want to deploy and maintain several instances of the agent, you could deploy a dedicated virtual machines and mount all of your volumes read only to that host. In this scenario you would only need a single agent to monitor all of your Azure NetApp Files volumes.
+**ANFCapacityManager Agent** can only monitor volume utilization for volumes that are mounted to the same host it is running on. If you have many hosts and do not want to deploy and maintain several instances of the agent, you could deploy a dedicated virtual machine and mount all of your volumes read only to that host. In this scenario you would only need a single agent to monitor all of your Azure NetApp Files volumes.
 
 ## Why PowerShell?
 
@@ -26,7 +26,7 @@ If PowerShell is not a good fit for your environment or use case, please feel fr
 
 #### Permissions
 
-The ANFCapacityManager logic app's managed identity will need write permissions on your Azure NetApp Files volumes. This is required for volume auto grow to function. You can give the logic app's managed identity the 'contributor' role or create a custom role.
+The ANFCapacityManager logic app's managed identity will need write permissions to your Azure NetApp Files volume resources. This is required for volume auto grow to function. You can give the logic app's managed identity the 'contributor' role or create a custom role.
 
 #### Steps to deploy the ANFCapacityManager logic app
 
@@ -37,7 +37,7 @@ The ANFCapacityManager logic app's managed identity will need write permissions 
     * **Resource group** - this is the resource group where the logic app will be deployed
     * **Region** - this is the region of the resource group selected
     * **Logic App Name** - any name you would like, it is recommended to add the suffix '_AgentMode'.
-    * **Location** - this is the region where the logic app will be deployed, leave as default to use same region as the resource group selected
+    * **Location** - this is the region where the logic app will be deployed, leave as default to use the same region as the resource group selected
     * **Target Resource Group for Alerts** - leave this field blank
     * **Target Resource Group to Monitor** - leave this field blank
     * **Capacity Pool Percent Full Threshold** - leave this field blank
@@ -50,7 +50,7 @@ The ANFCapacityManager logic app's managed identity will need write permissions 
 
 2. Retrieve the logic app's webhook URI by navigating to the logic app and clicking 'Logic app designer', click on the first box to expand it, and finally click on the copy to clipboard icon.
 
-<img src="./img/webhookuri.png" alt="" height="300" style="margin: 0 0 0 0; " />
+<img src="../img/webhookuri.png" alt="" height="300" style="margin: 0 0 0 0; " />
 
 ### 2. Deploy the ANFCapacityManager Agent script
 
