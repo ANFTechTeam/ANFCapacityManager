@@ -86,7 +86,7 @@ foreach($volume in $dfout | where-object {$_ -notlike "File*"}) { # -notlike omi
     $volumeIPandName = $volumePathIP + ':/' + $volumeName # removes any nested folders
 
     # check if the percent consumed is greater or equal to the threshold and check if the volume has already been processed, this catches volumes that may be mounted twice because of nested subdirectories
-    if($volumePercent -ge $percentFullThreshold -and $volumeIPandName -notin $processedVolumes) { 
+    if([int]$volumePercent -ge $percentFullThreshold -and $volumeIPandName -notin $processedVolumes) { 
         $processedVolumes += $volumeIPandName # add this volume to the processed volumes array
 
         # loop through all of the volumes in Azure to find a match based on the volume name from df
