@@ -12,6 +12,7 @@
 
 ## Change Log
 
+* Apr 12, 2023 - Added $top=500 to API call to support more than 100 volumes in a single capacity pool
 * Nov 30, 2022 - Added support for ['Agent mode'](./linux/README.md). Agent mode measures volume utilization from the host and significantly reduces auto grow response time.
 * Nov 30, 2022 - Added support for volume specific thresholds via volume tags. See [Volume Tags](#volume-tags) below for more information.
 * Sep 20, 2021 - Fixed bug that required SMBFQDN field that doesn't always exist
