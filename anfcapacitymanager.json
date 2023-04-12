@@ -2144,7 +2144,7 @@
                                                                                     "type": "ManagedServiceIdentity"
                                                                                 },
                                                                                 "method": "GET",
-                                                                                "uri": "https://management.azure.com/subscriptions/@{split(variables('scope'),'/')[2]}/resourceGroups/@{split(variables('scope'),'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(variables('scope'),'/')[8]}/capacityPools/@{split(variables('scope'),'/')[10]}/volumes?api-version=2020-02-01"
+                                                                                "uri": "https://management.azure.com/subscriptions/@{split(variables('scope'),'/')[2]}/resourceGroups/@{split(variables('scope'),'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(variables('scope'),'/')[8]}/capacityPools/@{split(variables('scope'),'/')[10]}/volumes?api-version=2020-02-01&$top=500"
                                                                             }
                                                                         },
                                                                         "If_VolumeAutoGrowMaxGibi_Volume_Tag": {
