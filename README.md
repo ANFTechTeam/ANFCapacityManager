@@ -34,9 +34,9 @@
 ## Capacity Management
 
 * Optionally, when an Azure NetApp Files Volume reaches the specified percent consumed threshold, the volume quota (size) will be increased by the percent specified between 10-100%.
-* If increasing the volume size exceeds the capacity of the containing capacity pool, the capacity pool size will also be increased to accomodate the new volume size.
+* If increasing the volume size exceeds the capacity of the containing capacity pool, the capacity pool size will also be increased to accommodate the new volume size.
 * Because CRR target volumes will be increased to match the source, ANFCapacityManager will now verify there is sufficient space in the target volume's capacity pool and increase capacity as needed.
-* For an exmaple of how this works, click [here](./ResizeWorkflow.md).
+* For an example of how this works, click [here](./ResizeWorkflow.md).
 
 ## Prerequisites and Permissions
 
