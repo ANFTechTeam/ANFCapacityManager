@@ -2542,7 +2542,7 @@
                                                                         "Test_if_New_Size_is_Less_than_Current_Size": {
                                                                             "actions": {},
                                                                             "runAfter": {
-                                                                                "Test_if_Volume_is_CRR_Source": [
+                                                                                "Test_if_Volume_is__Source": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
@@ -2946,7 +2946,7 @@
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
-                                                                                        "uri": "https://management.azure.com/subscriptions/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[2]}/resourceGroups/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[8]}/capacityPools/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[10]}/volumes?api-version=2020-12-01"
+                                                                                        "uri": "https://management.azure.com/subscriptions/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[2]}/resourceGroups/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[4]}/providers/Microsoft.NetApp/netAppAccounts/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[8]}/capacityPools/@{split(body('Parse_Details_of_the_Resource')?['properties']?['dataProtection']?['replication']?['remoteVolumeResourceId'],'/')[10]}/volumes?api-version=2020-12-01&$top=500"
                                                                                     }
                                                                                 },
                                                                                 "Parse_Details_of_Destination_Pool": {
