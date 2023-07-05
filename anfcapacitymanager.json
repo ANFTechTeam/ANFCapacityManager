@@ -2542,7 +2542,7 @@
                                                                         "Test_if_New_Size_is_Less_than_Current_Size": {
                                                                             "actions": {},
                                                                             "runAfter": {
-                                                                                "Test_if_Volume_is__Source": [
+                                                                                "Test_if_Volume_is_CRR_Source": [
                                                                                     "Succeeded"
                                                                                 ]
                                                                             },
