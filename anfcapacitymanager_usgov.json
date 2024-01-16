@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.usgovcloudapi.net/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Logic App Name": {
@@ -88,7 +88,7 @@
             "properties": {
                 "state": "Enabled",
                 "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "$schema": "https://schema.management.usgovcloudapi.net/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {},
                     "triggers": {
@@ -2468,7 +2468,7 @@
                                                                                                 }
                                                                                             },
                                                                                             "method": "PATCH",
-                                                                                            "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
+                                                                                            "uri": "https://management.usgovcloudapi.net/@{variables('scope')}?api-version=2020-02-01"
                                                                                         }
                                                                                     }
                                                                                 }
