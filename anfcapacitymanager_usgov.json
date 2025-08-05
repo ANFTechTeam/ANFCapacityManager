@@ -5172,7 +5172,7 @@
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
-                                                                                        "uri": "https://management.usgovcloudapi.net/@{items('For_each_Capacity_Pool_in_Sub')?['id']}/volumes?api-version=2017-08-15"
+                                                                                        "uri": "https://management.usgovcloudapi.net/@{items('For_each_Capacity_Pool_in_Sub')?['id']}/volumes?api-version=2017-08-15&$top=500"
                                                                                     }
                                                                                 },
                                                                                 "Parse_All_Volumes_in_Sub": {

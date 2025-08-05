@@ -9,19 +9,19 @@
                 "description": "Choose a name for the Logic App. If you are only monitoring a single resource group, it is recommended to append the name with your resource group name (e.g., ANFCapacityManager_myrg.rg)."
             }
         },
-         "Location": {
+        "Location": {
             "defaultValue": "[resourceGroup().location]",
             "type": "String",
             "metadata": {
                 "description": "The location/region where the Logic App will be deployed. Leave as is to deploy to the same region as the containing resource group."
-              }
+            }
         },
         "Target Resource Group for Alerts": {
             "defaultValue": "AlertsWillBeCreatedHere.rg",
             "type": "String",
             "metadata": {
                 "description": "The resource group where you would like the Alert Rules to be created. The Logic App will need a 'contributor' role to this resource group."
-              }
+            }
         },
         "Target Resource Group to Monitor": {
             "defaultValue": "",
@@ -5172,7 +5172,7 @@
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
-                                                                                        "uri": "https://management.azure.com/@{items('For_each_Capacity_Pool_in_Sub')?['id']}/volumes?api-version=2017-08-15"
+                                                                                        "uri": "https://management.azure.com/@{items('For_each_Capacity_Pool_in_Sub')?['id']}/volumes?api-version=2017-08-15$top=500"
                                                                                     }
                                                                                 },
                                                                                 "Parse_All_Volumes_in_Sub": {
