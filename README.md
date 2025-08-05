@@ -12,6 +12,7 @@
 
 ## Change Log
 
+* Aug 05, 2025 - Update version for volume resize api call to 2025-03-01 (Thanks [ThomSerree](https://github.com/ThomSerree)!)
 * Apr 12, 2023 - Added $top=500 to API call to support more than 100 volumes in a single capacity pool
 * Nov 30, 2022 - Added support for ['Agent mode'](./linux/README.md). Agent mode measures volume utilization from the host and significantly reduces auto grow response time.
 * Nov 30, 2022 - Added support for volume specific thresholds via volume tags. See [Volume Tags](#volume-tags) below for more information.

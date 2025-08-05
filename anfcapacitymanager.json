@@ -2568,7 +2568,7 @@
                                                                                                 }
                                                                                             },
                                                                                             "method": "PATCH",
-                                                                                            "uri": "https://management.azure.com/@{variables('scope')}?api-version=2020-02-01"
+                                                                                            "uri": "https://management.azure.com/@{variables('scope')}?api-version=2025-03-01"
                                                                                         }
                                                                                     }
                                                                                 }
